@@ -6,8 +6,6 @@
       <a @click="logout" v-else class="logout" >Logout</a>
     </header>
     <router-view @status="setStatus"></router-view>
-    <h1 v-if="status == 'success'">Hello {{first_name}} {{last_name}}</h1>
-    {{status}}
   </div>
 </template>
 
@@ -18,8 +16,6 @@ export default {
   data() {
     return {
       status: localStorage.getItem('status'),
-      first_name: localStorage.getItem('first_name'),
-      last_name: localStorage.getItem('last_name')
     }
   },
   components: {
@@ -31,8 +27,6 @@ export default {
     logout() {
       localStorage.clear()
       this.status = '';
-      this.first_name = '';
-      this.last_name = '';
       this.$router.push('/login')
     }
   }
