@@ -76,7 +76,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             'exp': int(dt.strftime('%s'))
         }, settings.SECRET_KEY, algorithm='HS256')
 
-        return token.decode('utf-8')
+        return token
     
     def _generate_refresh_token(self):
         refresh_token_payload = {
@@ -84,5 +84,5 @@ class User(AbstractBaseUser, PermissionsMixin):
             'exp': datetime.utcnow() + timedelta(days=1),
         }
         refresh_token = jwt.encode(
-            refresh_token_payload, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+            refresh_token_payload, settings.SECRET_KEY, algorithm='HS256')
         return refresh_token

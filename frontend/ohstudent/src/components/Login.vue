@@ -1,12 +1,15 @@
 <template>
     <div>
-        <form class="login-container">
+        <form class="login-container" @submit.prevent="login">
             <div class="input-container">
                 <label for="email">Email</label>
                 <input required v-model="email" type="email" placeholder="foo@example.com" name="email"/>
                 <label for="password">Password</label>
                 <input required v-model="password" type="password" placeholder="********" name="password"/>
                 <router-link class='registration-link' to="/registration">Нет аккаунта...</router-link>
+                <ul v-if="errors" class="errors">
+                    <li v-for="error in errors" :key="error[0]">{{error[0]}}</li>
+                </ul>
             </div>
             <button type="submit">Login</button>
         </form>
@@ -14,8 +17,44 @@
 </template>
 
 <script>
-export default {
+import { jwtDecrypt } from '@/jwtDecode'
+import axios from 'axios'
 
+export default {
+    data() {
+        return {
+            email: '',
+            password: 'Admin1234!',
+            errors: [],
+        }
+    },
+    methods: {
+        async login() {
+            const response = await axios.post('http://127.0.0.1:8000/account/login/', {
+                user: {
+                    email: this.email,
+                    password: this.password
+                }
+            }).catch(err => { 
+                if (err.response) { 
+                    this.errors = err.response.data.errors
+                }
+            })
+            if (response)
+            {
+                const user = response.data.user
+                localStorage.setItem("token", user.token)
+                localStorage.setItem("refresh_token", user.refresh_token)
+                localStorage.setItem("first_name", user.first_name)
+                localStorage.setItem("last_name", user.last_name)
+                const jwtDecodedValue = jwtDecrypt(user.token)
+                localStorage.setItem("token_exp", jwtDecodedValue.exp)
+                localStorage.setItem('status', 'success')
+                this.$emit('status', 'success')
+                this.$router.push('/')
+            }
+        }
+    }
 }
 </script>
 
@@ -60,12 +99,16 @@ button {
     cursor: pointer;
     color: white;
     font-size: 100%;
-    margin-top: 5%;
+    margin-top: 3%;
     font-family: 'Noto Sans JP', sans-serif;
 }
 
 .registration-link {
     color: #AAAAAA;
     font-family: 'Noto Sans JP', sans-serif;
+}
+
+.errors {
+    color: #F68F71;
 }
 </style>

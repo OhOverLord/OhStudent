@@ -2,9 +2,12 @@
   <div id="app">
     <header>
       <router-link class="logo" to="/">OhStudent</router-link>
-      <router-link class="login-link" to="/login" active-class="active">Login</router-link>
+      <router-link class="login-link" to="/login" active-class="active" v-if="status != 'success'">Login</router-link>
+      <a @click="logout" v-else class="logout" >Logout</a>
     </header>
-    <router-view></router-view>
+    <router-view @status="setStatus"></router-view>
+    <h1 v-if="status == 'success'">Hello {{first_name}} {{last_name}}</h1>
+    {{status}}
   </div>
 </template>
 
@@ -12,7 +15,26 @@
 
 export default {
   name: 'App',
+  data() {
+    return {
+      status: localStorage.getItem('status'),
+      first_name: localStorage.getItem('first_name'),
+      last_name: localStorage.getItem('last_name')
+    }
+  },
   components: {
+  },
+  methods: {
+    setStatus(status) {
+      this.status = status
+    },
+    logout() {
+      localStorage.clear()
+      this.status = '';
+      this.first_name = '';
+      this.last_name = '';
+      this.$router.push('/login')
+    }
   }
 }
 </script>
@@ -44,13 +66,17 @@ header {
     font-family: 'Ubuntu', sans-serif;  
 }
 
-.login-link {
+.login-link, .logout{
     text-decoration: none;
     color: white;
     padding-top: 10px;
     margin-right: 5%;
     font-size: 1.5em;
     font-family: 'Ubuntu', sans-serif;  
+}
+
+.logout {
+  cursor: pointer;
 }
 
 .active {
