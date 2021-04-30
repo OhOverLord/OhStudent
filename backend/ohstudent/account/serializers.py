@@ -23,6 +23,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
     first_name = serializers.CharField(max_length=255, read_only=True)
+    username = serializers.CharField(max_length=255, read_only=True)
     last_name = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
     token = serializers.CharField(max_length=255, read_only=True)
@@ -60,6 +61,7 @@ class LoginSerializer(serializers.Serializer):
             'last_name': user.last_name,
             'token': user.token,
             'refresh_token': user.refresh_token,
+            'username': user.username,
         }
 
 

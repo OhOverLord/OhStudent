@@ -11,7 +11,7 @@
                     <li v-for="error in errors" :key="error[0]">{{error[0]}}</li>
                 </ul>
             </div>
-            <a @click="login">Login</a>
+            <a class="login-btn" @click="login" type="button"><p>Login</p></a>
         </form>
     </div>
 </template>
@@ -42,11 +42,13 @@ export default {
             })
             if (response)
             {
+                console.log(response.data.user)
                 const user = response.data.user
                 localStorage.setItem("token", user.token)
                 localStorage.setItem("refresh_token", user.refresh_token)
                 localStorage.setItem("first_name", user.first_name)
                 localStorage.setItem("last_name", user.last_name)
+                localStorage.setItem("username", user.username)
                 const jwtDecodedValue = jwtDecrypt(user.token)
                 localStorage.setItem("token_exp", jwtDecodedValue.exp)
                 localStorage.setItem('status', 'success')
@@ -90,7 +92,11 @@ input[type=email], input[type=password] {
     width: 80%;
 }
 
-button {
+.login-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     width: 80%;
     height: 48px;
     background: #EAD0DE;
@@ -98,9 +104,11 @@ button {
     border: none;
     cursor: pointer;
     color: white;
-    font-size: 100%;
-    margin-top: 3%;
+}
+
+.login-btn p {
     font-family: 'Noto Sans JP', sans-serif;
+    margin: 0;
 }
 
 .registration-link {
