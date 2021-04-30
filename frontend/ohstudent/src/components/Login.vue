@@ -1,6 +1,6 @@
 <template>
     <div>
-        <form class="login-container" @submit.prevent="login">
+        <form class="login-container" ref="form" action="/">
             <div class="input-container">
                 <label for="email">Email</label>
                 <input required v-model="email" type="email" placeholder="foo@example.com" name="email"/>
@@ -11,7 +11,7 @@
                     <li v-for="error in errors" :key="error[0]">{{error[0]}}</li>
                 </ul>
             </div>
-            <button type="submit">Login</button>
+            <a @click="login">Login</a>
         </form>
     </div>
 </template>
@@ -51,7 +51,7 @@ export default {
                 localStorage.setItem("token_exp", jwtDecodedValue.exp)
                 localStorage.setItem('status', 'success')
                 this.$emit('status', 'success')
-                this.$router.push('/')
+                this.$refs.form.submit()
             }
         }
     }
