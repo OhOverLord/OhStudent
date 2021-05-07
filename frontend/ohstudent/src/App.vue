@@ -11,7 +11,7 @@
         </div>
       </div>
     </header>
-    <router-view @status="setStatus"></router-view>
+    <router-view @status="setStatus" @username="setUsername"></router-view>
   </div>
 </template>
 
@@ -30,6 +30,9 @@ export default {
   methods: {
     setStatus(status) {
       this.status = status
+    },
+    setUsername(username) {
+      this.username = username
     },
     logout() {
       this.username = ""
@@ -59,7 +62,7 @@ header {
     margin: 0;
     width: 100vw;
     height: 50px;
-    background: #EAD0DE;
+    background: #C5FAD1;
 }
 
 .logo {

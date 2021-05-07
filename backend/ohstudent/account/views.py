@@ -33,7 +33,6 @@ class LoginAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
-        print(user)
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -44,8 +43,9 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
     renderer_classes = (UserJSONRenderer,)
     serializer_class = UserSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        serializer = self.serializer_class(request.user)
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(pk=request.user.pk)
+        serializer = self.serializer_class(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):

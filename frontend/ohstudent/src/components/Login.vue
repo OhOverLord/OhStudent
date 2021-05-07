@@ -62,7 +62,7 @@ export default {
 
 <style scoped>
 .login-container {
-    border: 3px solid #EAD0DE;
+    border: 3px solid #C5FAD1;
     width: 50%;
     height: 322px;
     position: absolute;
@@ -99,7 +99,7 @@ input[type=email], input[type=password] {
     text-align: center;
     width: 80%;
     height: 48px;
-    background: #EAD0DE;
+    background: #C5FAD1;
     border-radius: 9px;
     border: none;
     cursor: pointer;
