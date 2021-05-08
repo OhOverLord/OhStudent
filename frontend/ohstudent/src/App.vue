@@ -62,7 +62,7 @@ header {
     margin: 0;
     width: 100vw;
     height: 50px;
-    background: #C5FAD1;
+    background: #EAD0DE;
 }
 
 .logo {

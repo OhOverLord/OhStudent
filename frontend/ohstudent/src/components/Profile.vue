@@ -20,7 +20,7 @@
                     <input type="text" v-model="last_name">
                 </div>
                 <div class="change-pass" :class="{hide: hide}">
-                    <input type="password" v-model="password" placeholder="Старый пароль">
+                    <input type="password" v-model="password" placeholder="Новый пароль">
                     <input type="password" v-model="password2" placeholder="Подтверждение пароля">
                     <ul v-if="errors" class="errors">
                         <li v-for="error in errors" :key="error[0]">{{error[0]}}</li>
@@ -156,7 +156,7 @@ input {
 .profile-container {
     width: 30%;
     height: 80vh;
-    border: 3px solid #C5FAD1;
+    border: 3px solid #EAD0DE;
     border-radius: 38px;
     margin: auto;
     display: flex;
@@ -185,7 +185,7 @@ input {
 .save-btn {
     width: 80%;
     height: 30px;
-    background: #C5FAD1;
+    background: #EAD0DE;
     border-radius: 9px;
     border: none;
     cursor: pointer;
@@ -200,7 +200,7 @@ input {
 }
 
 .username, .email, .first_name, .last_name {
-    border-bottom: 3px solid #C5FAD1;
+    border-bottom: 3px solid #EAD0DE;
     width: 80%;
     height: 10%;
     text-align: center;
