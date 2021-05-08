@@ -84,3 +84,17 @@ class RefreshTokenAPIView(APIView):
 
         token = user.token
         return Response({'token': token, 'refresh_token': user.refresh_token})
+
+
+class ComparePassword(APIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request):
+        password = request.data.get('password')
+        user = User.objects.get(pk=request.user.pk)
+        if user.check_password(password):
+            print("success")
+            return Response("Success", status=status.HTTP_200_OK)
+        else:
+            print("wrong")
+            return Response({"errors": "Wrong password"}, status=status.HTTP_400_BAD_REQUEST)

@@ -47,6 +47,7 @@ export default {
             password2: '',
             disabled: true,
             hide: true,
+            old_password: '',
             errors: []
         }
     },
@@ -64,7 +65,7 @@ export default {
                 this.disabled = false
         },
         password2(newEl, oldEl) {
-            if(this.password == this.password2)
+            if(this.password == this.password2 && this.password != '' && this.password2 != '')
                 {
                     this.disabled = false
                     this.errors = []
@@ -76,7 +77,7 @@ export default {
                 }
         },
         password(newEl, oldEl) {
-            if(this.password == this.password2)
+            if(this.password == this.password2 && this.password != '' && this.password2 != '')
                 {
                     this.disabled = false
                     this.errors = []
