@@ -72,15 +72,15 @@ class RefreshTokenAPIView(APIView):
             payload = jwt.decode(
                 refresh_token, settings.SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
-            raise jwt.exceptions.AuthenticationFailed(
+            raise jwt.exceptions.InvalidTokenError(
                 'expired refresh token, please login again.')
 
         user = User.objects.filter(id=payload.get('id')).first()
         if user is None:
-            raise jwt.exceptions.AuthenticationFailed('User not found')
+            raise jwt.exceptions.InvalidKeyError('User not found')
 
         if not user.is_active:
-            raise jwt.exceptions.AuthenticationFailed('user is inactive')
+            raise jwt.exceptions.InvalidKeyError('user is inactive')
 
         token = user.token
         return Response({'token': token, 'refresh_token': user.refresh_token})

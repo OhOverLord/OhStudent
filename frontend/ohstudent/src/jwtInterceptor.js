@@ -18,7 +18,7 @@ jwtInterceptor.interceptors.request.use((config) => {
       return response;
     },
     async (error) => {
-      if (error.response.status === 401) {
+      if (error.response.status === 403) {
         const payload = {
           access_token: localStorage.getItem('token'),
           refresh_token: localStorage.getItem('refresh_token'),

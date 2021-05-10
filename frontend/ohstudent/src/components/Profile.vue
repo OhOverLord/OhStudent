@@ -96,7 +96,11 @@ export default {
             this.first_name = response.data.user.first_name,
             this.last_name = response.data.user.last_name
         })
-        .catch(err => (console.log(err.response)));
+        .catch(err => { 
+                if (err.response.status === 500) { 
+                    this.$router.push('/login');
+                }
+            })
     },
     methods: {
         save() {

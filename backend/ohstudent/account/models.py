@@ -81,7 +81,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def _generate_refresh_token(self):
         refresh_token_payload = {
             'id': self.pk,
-            'exp': datetime.utcnow() + timedelta(days=1),
+            'exp': datetime.utcnow() + timedelta(days=7),
         }
         refresh_token = jwt.encode(
             refresh_token_payload, settings.SECRET_KEY, algorithm='HS256')
