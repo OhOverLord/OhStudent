@@ -8,7 +8,13 @@ export default new Router({
     routes: [
         {
             path: '/',
-            component: () => import('./components/Home.vue')
+            component: () => import('./components/Home.vue'),
+            beforeEnter: (to, from, next) => {
+                status = localStorage.getItem('status')
+                if(status != 'success')
+                    next({ path: '/login' })
+                else next()
+              }
         },
         {
             path: '/login',
@@ -20,7 +26,24 @@ export default new Router({
         },
         {
             path: '/profile',
-            component: () => import('./components/Profile.vue')
-        }
+            component: () => import('./components/Profile.vue'),
+            beforeEnter: (to, from, next) => {
+                status = localStorage.getItem('status')
+                if(status != 'success')
+                    next({ path: '/login' })
+                else next()
+              }
+            
+        },
+        {
+            path: '/chat',
+            component: () => import('./components/Chat.vue'),
+            beforeEnter: (to, from, next) => {
+                status = localStorage.getItem('status')
+                if(status != 'success')
+                    next({ path: '/login' })
+                else next()
+              }
+        },
     ]
 })
