@@ -10,7 +10,7 @@
                     <div class="profile-image"></div>
                     <div class="message">
                         <div class="fio">Николай Иванов</div>
-                        <div class="message-text">Последнее сообщение от...</div>
+                        <div class="message-text">Wow that's impressive...</div>
                     </div>
                 </div>
             </div>
@@ -31,6 +31,11 @@
                 <p class="from-them">It's pretty cool!</p>
                 <p class="from-me">Yeah it's pure CSS &amp; HTML</p>
                 <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
+                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
+                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
+                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
+                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
+                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
             </div>
             <div class="message-input-container">
                 <input type="text" class="message-input" placeholder="Написать сообщение...">
@@ -48,6 +53,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+::-webkit-scrollbar {
+    width: 0px;
+}
+ 
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: #EAD0DE; 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: rgba(255,0,0,0.4); 
+}
+
 p {
   max-width: 255px;
   word-wrap: break-word;
@@ -105,12 +133,20 @@ p {
 }
 
 .chat {
+    width: 80%;
+    height: 100%;
 	font-size: 15px;
 	font-weight: normal;
     max-width: 80%;
     display: flex;
     flex-direction: column;
     margin: auto;
+    overflow: hidden;
+}
+
+.chat:hover {
+    overflow-y:scroll;
+    overflow-x: hidden;
 }
 
 .send-message-btn {
@@ -140,11 +176,6 @@ p {
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.chat {
-    width: 100%;
-    height: 100%;
 }
 
 span {
@@ -226,6 +257,7 @@ span {
     display: flex;
     flex-direction: column;
     align-items: center;
+    overflow: auto;
 }
 
 .message-container {
