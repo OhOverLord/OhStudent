@@ -31,11 +31,6 @@
                 <p class="from-them">It's pretty cool!</p>
                 <p class="from-me">Yeah it's pure CSS &amp; HTML</p>
                 <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
-                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
-                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
-                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
-                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
-                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
             </div>
             <div class="message-input-container">
                 <input type="text" class="message-input" placeholder="Написать сообщение...">
@@ -48,7 +43,24 @@
 <script>
 
 export default {
+  data() {
+    return {
+      connection: null
+    }
+  },
+  created() {
+    console.log("Starting connection to WebSocket Server")
+    this.connection = new WebSocket("ws://127.0.0.1:8000/ws/chat/1/")
 
+    this.connection.onmessage = function(event) {
+      console.log(event);
+    }
+
+    this.connection.onopen = function(event) {
+      console.log(event)
+      console.log("Successfully connected to the echo websocket server...")
+    }
+  }
 }
 </script>
 

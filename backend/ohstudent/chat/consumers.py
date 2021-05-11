@@ -1,13 +1,13 @@
+from django.contrib.auth import get_user_model
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 import json
 from .models import Message, Chat, Contact
-from account.models import User
 from .views import get_last_10_messages, get_user_contact, get_current_chat
 
 
-class ChatConsumer(WebsocketConsumer):
 
+class ChatConsumer(WebsocketConsumer):
     def fetch_messages(self, data):
         messages = get_last_10_messages(data['chatId'])
         content = {
