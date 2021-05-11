@@ -116,3 +116,6 @@ REST_FRAMEWORK = {
         'account.backends.JWTAuthentication',
     ),
 }
+
+
+ASGI_APPLICATION = "config.asgi.application"
