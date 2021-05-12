@@ -4,9 +4,18 @@ from chat.models import Chat, Contact
 from chat.views import get_user_contact
 
 
-class ContactSerializer(serializers.StringRelatedField):
+class ContactSerializer(serializers.StringRelatedField):        
     def to_internal_value(self, value):
         return value
+
+
+class FriendsSerializer(serializers.ModelSerializer):
+    friends = ContactSerializer(many=True)
+
+    class Meta:
+        model = Contact
+        fields = '__all__'
+        read_only = ('user')
 
 
 class ChatSerializer(serializers.ModelSerializer):
