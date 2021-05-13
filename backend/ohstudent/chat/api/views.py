@@ -25,7 +25,7 @@ class ChatListView(ListAPIView):
 
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
-        queryset = contact.chats.all()
+        queryset = contact.chats.filter(participants__id=self.request.user.id)
         return queryset
 
 

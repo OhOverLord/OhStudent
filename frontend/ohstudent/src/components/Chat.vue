@@ -6,17 +6,22 @@
                 <button class="search-button">Искать</button>
             </div>
             <div class="message-list-container">
-                <div class="message-container">
+
+                <div v-for="chat in chats" :key="chat.id" class="message-container" @click="openChat(chat.id)">
                     <div class="profile-image"></div>
                     <div class="message">
-                        <div class="fio">Николай Иванов</div>
-                        <div class="message-text">Wow that's impressive...</div>
+                        <div class="fio">
+                            {{chat.participants[0].user.first_name}}
+                            {{chat.participants[0].user.last_name}}
+                        </div>
+                        <div class="message-text">{{chat.messages[0].content.substring(0,20)}}...</div>
                     </div>
                 </div>
+
             </div>
             <button class="add-friend-btn">Добавить друга</button>
         </div>
-        <div class="chat-container">
+        <div class="chat-container" :class="{'visible': visible}">
             <div class="chat-header">
                 <div class="profile-image"></div>
                 <div class="person-info">
@@ -24,47 +29,126 @@
                     <span class="status">Online</span>
                 </div>
             </div>
-            <div class="chat">
-                <p class="from-me">Hey there! What's up</p>
-                <p class="from-them">Checking out iOS7 you know..</p>
-                <p class="from-me">Check out this bubble!</p>
-                <p class="from-them">It's pretty cool!</p>
-                <p class="from-me">Yeah it's pure CSS &amp; HTML</p>
-                <p class="from-them">Wow that's impressive. But what's even more impressive is that this bubble is really high.</p>
+            <div class="chat" id="chat">
+                <p v-for="message in messages" :key="message.id" :class="{ 'from-me': username == message.author, 'from-them': username != message.author }">{{message.content}}</p>
             </div>
             <div class="message-input-container">
-                <input type="text" class="message-input" placeholder="Написать сообщение...">
-                <button class="send-message-btn">Отправить</button>
+                <input v-model="messageText" type="text" class="message-input" placeholder="Написать сообщение...">
+                <button class="send-message-btn" @click="newMessage">Отправить</button>
             </div>
         </div>
     </div>
 </template>
 
 <script>
+import jwtInterceptor from '@/jwtInterceptor'
 
 export default {
   data() {
     return {
-      connection: null
+      connection: null,
+      chats: [],
+      messages: {},
+      socketRef: Object,
+      username: localStorage.getItem('username'),
+      messageText: '',
+      chatId: '',
+      visible: true,
     }
   },
-  created() {
-    console.log("Starting connection to WebSocket Server")
-    this.connection = new WebSocket("ws://127.0.0.1:8000/ws/chat/1/")
-
-    this.connection.onmessage = function(event) {
-      console.log(event);
-    }
-
-    this.connection.onopen = function(event) {
-      console.log(event)
-      console.log("Successfully connected to the echo websocket server...")
-    }
+  methods: {
+    openChat(chatId) {
+        this.chatId = chatId
+        this.visible = false
+        this.connect(chatId, 'fetchMessages')
+    },
+    newMessage() {
+        this.newChatMessage({
+            from: localStorage.getItem('username'),
+            content: this.messageText,
+            chatId: this.chatId
+        })
+        this.messageText = ''
+        this.scrollToEnd();
+    },
+    connect(chatUrl, func_name) {
+        const path = `ws://127.0.0.1:8000/ws/chat/${chatUrl}/`;
+        this.socketRef = new WebSocket(path);
+        this.socketRef.onopen = () => {
+            console.log("WebSocket open");
+            if(func_name == 'fetchMessages')
+                this.fetchMessages(localStorage.getItem('username'), chatUrl)
+        };
+        this.socketRef.onmessage = e => {
+            this.socketNewMessage(e.data);
+        };
+        this.socketRef.onerror = e => {
+            console.log(e.message);
+        };
+        this.socketRef.onclose = () => {
+            console.log("WebSocket closed let's reopen");
+            this.connect();
+        };
+    },
+    fetchMessages(username, chatId) {
+        this.sendMessage({
+            command: "fetch_messages",
+            username: username,
+            chatId: chatId
+        });
+    },
+    newChatMessage(message) {
+        console.log(message)
+        this.sendMessage({
+            command: "new_message",
+            from: message.from,
+            message: message.content,
+            chatId: message.chatId
+        });
+    },
+    sendMessage(data) {
+        try {
+            this.socketRef.send(JSON.stringify({ ...data }));
+        } catch (err) {
+            console.log(err.message);
+        }
+    },
+    socketNewMessage(data) {
+        const parsedData = JSON.parse(data);
+        const command = parsedData.command;
+        if (command === "messages") {
+            this.messages = parsedData.messages;
+        }
+        if (command === "new_message") {
+            this.messages.push(parsedData.message);
+        }
+    },
+    disconnect() {
+        this.socketRef.close();
+    },
+    scrollToEnd() {    	
+      var container = this.$el.querySelector("#chat");
+      container.scrollTop = container.scrollHeight;
+    },
+  },
+  mounted() {
+    jwtInterceptor.get('http://127.0.0.1:8000/chat/').then(response => {
+        this.chats = response.data
+        console.log(response)
+    })
+    .catch(err => { 
+            if (err.response.status === 500) { 
+                this.$router.push('/login');
+            }
+        })
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.visible {
+    opacity: 0%;
+}
 
 ::-webkit-scrollbar {
     width: 0px;
@@ -91,7 +175,6 @@ export default {
 p {
   max-width: 255px;
   word-wrap: break-word;
-  margin-bottom: 12px;
   line-height: 24px;
   position: relative;
   padding: 10px 20px;
