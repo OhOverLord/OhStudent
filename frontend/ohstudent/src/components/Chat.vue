@@ -7,14 +7,13 @@
             </div>
             <div class="message-list-container">
 
-                <div v-for="chat in chats" :key="chat.id" class="message-container" @click="openChat(chat.id)">
+                <div v-for="chat in chats" :key="chat.id" class="message-container" @click="openChat(chat.id, chat.participants[0].user.first_name + ' ' + chat.participants[0].user.last_name)">
                     <div class="profile-image"></div>
                     <div class="message">
                         <div class="fio">
                             {{chat.participants[0].user.first_name}}
                             {{chat.participants[0].user.last_name}}
                         </div>
-                        <div class="message-text">{{chat.messages[0].content.substring(0,20)}}...</div>
                     </div>
                 </div>
 
@@ -25,7 +24,7 @@
             <div class="chat-header">
                 <div class="profile-image"></div>
                 <div class="person-info">
-                    <span>Николай Иванов</span><br>
+                    <span>{{fio}}</span><br>
                     <span class="status">Online</span>
                 </div>
             </div>
@@ -33,7 +32,7 @@
                 <p v-for="message in messages" :key="message.id" :class="{ 'from-me': username == message.author, 'from-them': username != message.author }">{{message.content}}</p>
             </div>
             <div class="message-input-container">
-                <input v-model="messageText" type="text" class="message-input" placeholder="Написать сообщение...">
+                <input v-model="messageText" v-on:keyup.enter="newMessage" type="text" class="message-input" placeholder="Написать сообщение...">
                 <button class="send-message-btn" @click="newMessage">Отправить</button>
             </div>
         </div>
@@ -48,19 +47,21 @@ export default {
     return {
       connection: null,
       chats: [],
-      messages: {},
+      messages: [],
       socketRef: Object,
       username: localStorage.getItem('username'),
       messageText: '',
       chatId: '',
       visible: true,
+      fio: '',
     }
   },
   methods: {
-    openChat(chatId) {
+    openChat(chatId, fio) {
         this.chatId = chatId
         this.visible = false
         this.connect(chatId, 'fetchMessages')
+        this.fio = fio
     },
     newMessage() {
         this.newChatMessage({
@@ -69,7 +70,6 @@ export default {
             chatId: this.chatId
         })
         this.messageText = ''
-        this.scrollToEnd();
     },
     connect(chatUrl, func_name) {
         const path = `ws://127.0.0.1:8000/ws/chat/${chatUrl}/`;
@@ -77,7 +77,10 @@ export default {
         this.socketRef.onopen = () => {
             console.log("WebSocket open");
             if(func_name == 'fetchMessages')
+            {
+                console.log('lol')
                 this.fetchMessages(localStorage.getItem('username'), chatUrl)
+            }
         };
         this.socketRef.onmessage = e => {
             this.socketNewMessage(e.data);
@@ -98,7 +101,6 @@ export default {
         });
     },
     newChatMessage(message) {
-        console.log(message)
         this.sendMessage({
             command: "new_message",
             from: message.from,
@@ -116,6 +118,7 @@ export default {
     socketNewMessage(data) {
         const parsedData = JSON.parse(data);
         const command = parsedData.command;
+        console.log(parsedData)
         if (command === "messages") {
             this.messages = parsedData.messages;
         }
@@ -126,10 +129,13 @@ export default {
     disconnect() {
         this.socketRef.close();
     },
-    scrollToEnd() {    	
+    scrollToEnd() {
       var container = this.$el.querySelector("#chat");
       container.scrollTop = container.scrollHeight;
     },
+  },
+  updated() {
+    this.scrollToEnd();
   },
   mounted() {
     jwtInterceptor.get('http://127.0.0.1:8000/chat/').then(response => {
@@ -297,7 +303,7 @@ span {
     font-family: 'Noto Sans JP', sans-serif;
 }
 
-.message-text {
+.message-short-text {
     width: 100%;
     height: 40%;
     font-family: 'Noto Sans JP', sans-serif;

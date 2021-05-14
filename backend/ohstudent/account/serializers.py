@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 
 from .models import User
+from chat.models import Contact
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -17,7 +18,11 @@ class RegistrationSerializer(serializers.ModelSerializer):
         fields = ['email', 'username', 'password', 'token', 'first_name', 'last_name']
 
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        user = User.objects.create_user(**validated_data)
+        contact = Contact()
+        contact.user = user
+        contact.save()
+        return user
 
 
 class LoginSerializer(serializers.Serializer):

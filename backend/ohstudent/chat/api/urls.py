@@ -1,14 +1,6 @@
 from django.urls import path
 
-from .views import (
-    ChatListView,
-    ChatDetailView,
-    ChatCreateView,
-    ChatUpdateView,
-    ChatDeleteView,
-    FriendsListView,
-    FriendsUpdateView
-)
+from .views import *
 
 app_name = 'chat'
 
@@ -19,5 +11,6 @@ urlpatterns = [
     path('<int:pk>/update/', ChatUpdateView.as_view()),
     path('<int:pk>/delete/', ChatDeleteView.as_view()),
     path('friends-list/', FriendsListView.as_view()),
-    path('add-friend/', FriendsUpdateView.as_view())
+    path('add-friend/', FriendsUpdateView.as_view()),
+    path('contact-list/', ContactListView.as_view()),
 ]

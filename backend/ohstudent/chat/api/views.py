@@ -16,7 +16,7 @@ from rest_framework.views import APIView
 from chat.models import Chat, Contact
 from account.models import User
 from chat.views import get_user_contact
-from .serializers import ChatSerializer, FriendsSerializer
+from .serializers import ChatSerializer, FriendsSerializer, ContactSerializer
 
 
 class ChatListView(ListAPIView):
@@ -106,4 +106,14 @@ class FriendsUpdateView(RetrieveUpdateAPIView):
         new_friend.save()
         friends = contact.friends.all()
         serializer = self.serializer_class(friends, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ContactListView(APIView):
+    serializer_class = ContactSerializer
+    permission_classes = (permissions.AllowAny, )
+
+    def get(self, request):
+        contacts = Contact.objects.all()
+        serializer = self.serializer_class(contacts, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
