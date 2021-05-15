@@ -109,11 +109,11 @@ class FriendsUpdateView(RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ContactListView(APIView):
+class ContactListView(ListAPIView):
     serializer_class = ContactSerializer
-    permission_classes = (permissions.AllowAny, )
+    permission_classes = (permissions.IsAuthenticated, )
 
-    def get(self, request):
-        contacts = Contact.objects.all()
-        serializer = self.serializer_class(contacts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        contact = get_user_contact(self.request.user.username)
+        friends = contact.friends.all()
+        return Contact.objects.exclude(friends__in=friends)

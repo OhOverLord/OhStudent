@@ -62,7 +62,7 @@ header {
     margin: 0;
     width: 100vw;
     height: 50px;
-    background: #EAD0DE;
+    background: #DDBBD9;
 }
 
 .logo {
@@ -121,5 +121,27 @@ header {
 
 a {
   cursor: pointer;
+}
+
+::-webkit-scrollbar {
+    width: 0px;
+}
+ 
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); 
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: #EAD0DE; 
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: rgba(255,0,0,0.4); 
 }
 </style>
