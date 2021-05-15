@@ -25,7 +25,8 @@ class JWTAuthentication(authentication.BaseAuthentication):
             return None
 
         prefix = auth_header[0].decode('utf-8')
-        token = auth_header[1].decode('utf-8')
+        token = auth_header[1]
+        print(prefix)
 
         if prefix.lower() != auth_header_prefix:
             return None

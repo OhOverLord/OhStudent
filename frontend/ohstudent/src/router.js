@@ -45,5 +45,15 @@ export default new Router({
                 else next()
               }
         },
+        {
+            path: '/friends',
+            component: () => import('./components/Friends.vue'),
+            beforeEnter: (to, from, next) => {
+                status = localStorage.getItem('status')
+                if(status != 'success')
+                    next({ path: '/login' })
+                else next()
+              }
+        },
     ]
 })

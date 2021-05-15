@@ -99,6 +99,8 @@ export default {
         .catch(err => { 
                 if (err.response.status === 500) { 
                     this.$router.push('/login');
+                } else {
+                    console.log(err.response)
                 }
             })
     },

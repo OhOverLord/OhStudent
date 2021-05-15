@@ -6,7 +6,6 @@
                 <button class="search-button">Искать</button>
             </div>
             <div class="message-list-container">
-
                 <div v-for="chat in chats" :key="chat.id" class="message-container" @click="openChat(chat.id, chat.participants[0].user.first_name + ' ' + chat.participants[0].user.last_name)">
                     <div class="profile-image"></div>
                     <div class="message">
@@ -16,9 +15,8 @@
                         </div>
                     </div>
                 </div>
-
             </div>
-            <button class="add-friend-btn">Добавить друга</button>
+            <router-link class="add-friend-btn" to="/friends">Добавить друга</router-link>
         </div>
         <div class="chat-container" :class="{'visible': visible}">
             <div class="chat-header">
@@ -64,12 +62,16 @@ export default {
         this.fio = fio
     },
     newMessage() {
-        this.newChatMessage({
-            from: localStorage.getItem('username'),
-            content: this.messageText,
-            chatId: this.chatId
-        })
-        this.messageText = ''
+        if(this.messageText != '')
+        {
+            this.newChatMessage({
+                from: localStorage.getItem('username'),
+                content: this.messageText,
+                chatId: this.chatId
+            })
+            this.messageText = ''
+        }
+        else {alert('Напишите сообщение... :)')}
     },
     connect(chatUrl, func_name) {
         const path = `ws://127.0.0.1:8000/ws/chat/${chatUrl}/`;
@@ -328,6 +330,9 @@ span {
 }
 
 .add-friend-btn {
+    display: block;
+    text-align: center;
+    text-decoration: none;
     width: 100%;
     background: #EAD0DE;
     border: none;

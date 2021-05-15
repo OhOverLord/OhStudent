@@ -20,7 +20,7 @@ jwtInterceptor.interceptors.request.use((config) => {
     async (error) => {
       if (error.response.status === 403) {
         const payload = {
-          access_token: localStorage.getItem('token'),
+          token: localStorage.getItem('token'),
           refresh_token: localStorage.getItem('refresh_token'),
         };
   
@@ -28,9 +28,10 @@ jwtInterceptor.interceptors.request.use((config) => {
           "http://localhost:8000/account/refresh_token/",
           payload
         );
+        console.log(response.data)
         error.config.headers[
           "Authorization"
-        ] = `Token ${response.data.access_token}`;
+        ] = `Token ${response.data.token}`;
         return axios(error.config);
       } else {
         return Promise.reject(error);
