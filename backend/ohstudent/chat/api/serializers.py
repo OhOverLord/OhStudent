@@ -1,7 +1,7 @@
 from django.db.models import fields
 from rest_framework import serializers
 
-from chat.models import Chat, Contact, Message
+from chat.models import Chat, Contact, Message, Friend
 from chat.views import get_user_contact
 from account.models import User
 
@@ -9,7 +9,7 @@ from account.models import User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
 class MessageListSerializer(serializers.ListSerializer):
@@ -25,29 +25,21 @@ class MessageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserListSerializer(serializers.ListSerializer):
-    def to_representation(self, data):
-        data = data.exclude(user=self.context['request'].user)
-        return super(UserListSerializer, self).to_representation(data)
-
-
 class ContactSerializer(serializers.ModelSerializer): 
     user = UserSerializer()
 
     class Meta:
         model = Contact
-        list_serializer_class = UserListSerializer
         fields = ['user',]
 
 
-class FriendsSerializer(serializers.ModelSerializer):
-    friends = ContactSerializer(many=True)
-    user = UserSerializer()
-
+class FriendSerializer(serializers.ModelSerializer):
+    friend = ContactSerializer()
+    
     class Meta:
-        model = Contact
-        fields = '__all__'
-        read_only = ('user')
+        model = Friend
+        fields = ('friend', )
+        read_only = ('friend')
 
 
 class ChatSerializer(serializers.ModelSerializer):

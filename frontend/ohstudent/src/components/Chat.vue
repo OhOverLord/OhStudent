@@ -41,6 +41,7 @@
 import jwtInterceptor from '@/jwtInterceptor'
 
 export default {
+  props: ['id'],
   data() {
     return {
       connection: null,
@@ -145,10 +146,9 @@ export default {
         console.log(response)
     })
     .catch(err => { 
-            if (err.response.status === 500) { 
-                this.$router.push('/login');
-            }
+            console.warn(err.response)
         })
+    this.openChat(self.id, '')
   }
 }
 </script>

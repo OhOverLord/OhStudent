@@ -1,103 +1,53 @@
 <template>
     <div>
         <div class="friends-container">
-            <h2>Мои друзья</h2>
             <div class="my-friends-container">
-                <div class="friend">
+                <h2>Мои друзья</h2>
+                <div class="friend" v-for="friend in friends" :key="friend.id" >
                     <div class="person">
                         <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
+                        <span class="fio">{{friend.user.first_name}} {{friend.user.last_name}}</span>
                     </div>
                     <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
-                    </div>
-                </div>
-                <div class="friend">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
-                    </div>
-                    <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
-                    </div>
-                </div>
-                <div class="friend">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
-                    </div>
-                    <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
-                    </div>
-                </div>
-                <div class="friend">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
-                    </div>
-                    <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
-                    </div>
-                </div>
-                <div class="friend">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
-                    </div>
-                    <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
-                    </div>
-                </div>
-                <div class="friend">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
-                    </div>
-                    <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
-                    </div>
-                </div>
-                <div class="friend">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
-                    </div>
-                    <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
-                    </div>
-                </div>
-                <div class="friend">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">Николай Иванов</span>
-                    </div>
-                    <div class="buttons">
-                        <button class="send-message btn">Написать сообщение</button>
-                        <button class="remove-friend btn">Удалить из друзей</button>
+                        <button class="send-message btn">Написать</button>
+                        <button class="remove-friend btn" @click="deleteFriend(friend.user.id)">Удалить</button>
                     </div>
                 </div>
             </div>
-            <h2>Добавить друга</h2>
             <div class="add-friends-container">
+                <h2>Найти друга</h2>
                 <div class="search-friend-container">
                     <input type="text" class="search-input">
                     <button class="search-btn btn">Искать</button>
                 </div>
-                <div class="friend">
+                <div class="friend" v-for="person in accounts" :key="person.id">
                     <div class="person">
                         <div class="profile-image"></div>
-                        <span class="fio">Иван Петров</span>
+                        <span class="fio">{{person.user.first_name}} {{person.user.last_name}}</span>
                     </div>
                     <div class="buttons">
-                        <button class="add-friend btn">Добавить в друзья</button>
-                        <button class="send-message btn">Написать сообщение</button>
+                        <button class="add-friend btn" @click="addFriend(person.user.id)">Добавить</button>
+                        <button class="send-message btn" @click="startChat(person.user.id)">Написать</button>
+                    </div>
+                </div>
+            </div>
+            <div class="friend-requests">
+                <h2>Заявки в друзья</h2>
+                <div class="friend" v-for="person in friendRequests" :key="person.id">
+                    <div class="person">
+                        <div class="profile-image"></div>
+                        <span class="fio">{{person.friend.user.first_name}} {{person.friend.user.last_name}}</span>
+                    </div>
+                    <div class="buttons">
+                        <button class="add-friend btn" @click="addFriend(person.user.id)">Добавить</button>
+                        <button class="send-message btn" @click="startChat(person.user.id)">Написать</button>
+                    </div>
+                </div>
+                <h2>Отправленные заявки</h2>
+                <div class="friend" v-for="person in accounts" :key="person.id">
+                    <div class="person">
+                        <div class="profile-image"></div>
+                        <span class="fio">{{person.user.first_name}} {{person.user.last_name}}</span>
                     </div>
                 </div>
             </div>
@@ -106,15 +56,99 @@
 </template>
 
 <script>
-export default {
+import jwtInterceptor from '@/jwtInterceptor'
 
+export default {
+    data() {
+        return {
+            accounts: [],
+            friends: [],
+            friendRequests: []
+        }
+    },
+    methods: {
+        getAllContacts() {
+            jwtInterceptor.get('http://127.0.0.1:8000/chat/contact-list/').then(response => {
+                this.accounts = response.data
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
+        },
+        getAllFriends() {
+            jwtInterceptor.get('http://127.0.0.1:8000/chat/friends-list/').then(response => {
+                this.friends = response.data
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
+        },
+        getFriendRequests() {
+            jwtInterceptor.get('http://127.0.0.1:8000/chat/friend-requests-list/').then(response => {
+                this.friendRequests = response.data
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
+        },
+        addFriend(personId) {
+            jwtInterceptor.post('http://127.0.0.1:8000/chat/add-friend/', {
+                person_id: personId
+            }).then(response => {
+                this.friends.push(response.data)
+                this.getAllContacts()
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
+        },
+        deleteFriend(personId) {
+            jwtInterceptor.post('http://127.0.0.1:8000/chat/delete-friend/', {
+                person_id: personId
+            }).then(response => {
+                console.log(response)
+                this.accounts.push(response.data)
+                this.getAllFriends()
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
+        },
+        startChat(personId) {
+            console.log(this.accounts)
+            jwtInterceptor.post('http://127.0.0.1:8000/chat/create/', {
+                person_id: personId
+            }).then(response => {
+                console.log(response.data)
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
+        }
+    },
+    mounted() {
+        this.getAllContacts()
+        this.getAllFriends()
+        this.getFriendRequests()
+    }
 }
 </script>
 
 <style scoped>
+.friend-requests {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    overflow: auto;
+    border-left: 3px solid #DDBBD9;
+}
+
 .search-input {
     width: 60%;
-    height: 36px;
+    height: 3em;
     border: 3px solid #DDBBD9;
     box-sizing: border-box;
     border-radius: 8px;
@@ -162,7 +196,7 @@ export default {
 
 .btn {
     width: 45%;
-    height: 36px;
+    height: 2.5em;
     color: white;
     font-family: 'Noto Sans JP', sans-serif;
     font-size: 100%;
@@ -175,6 +209,7 @@ export default {
     background: #DDBBD9;
     width: 30%;
     margin-left: 10px;
+    box-sizing: border-box;
 }
 
 .search-btn:hover {
@@ -182,13 +217,14 @@ export default {
 }
 
 .fio {
-    font-size: 130%;
+    font-size: 100%;
     font-family: 'Noto Sans JP', sans-serif;
     margin-left: 10px;
+    width: 100%;
 }
 
 .profile-image {
-    width: 62px;
+    width: 70px;
     height: 58px;
     background: #C4C4C4;
     border-radius: 17px;
@@ -199,13 +235,12 @@ h2 {
 }
 
 .friends-container {
-    width: 70%;
+    width: 90%;
     height: 80vh;
     border: 3px solid #DDBBD9;
     margin: auto;
     margin-top: 50px;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     border-radius: 30px;
@@ -214,16 +249,16 @@ h2 {
 .my-friends-container {
     width: 100%;
     height: 100%;
-    border-bottom: 3px solid #DDBBD9;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
     overflow: auto;
+    border-right: 3px solid #DDBBD9;
 }
 
 .friend {
-    width: 70%;
+    width: 90%;
     height: 87px;
     border-bottom: 3px solid #DDBBD9;
     border-radius: 16px;
@@ -239,16 +274,9 @@ h2 {
 
 .search-friend-container {
     width: 70%;
-    height: 87px;
-    border: 3px solid #DDBBD9;
-    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.search-friend-container:hover {
-    border: 3px solid #CFA0CA;
 }
 
 .add-friends-container {

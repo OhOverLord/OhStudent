@@ -1,7 +1,7 @@
 from typing import List
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user, get_user_model
 from django.http import Http404
-from rest_framework import permissions
+from rest_framework import permissions, serializers
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (
@@ -10,13 +10,14 @@ from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
     UpdateAPIView,
-    RetrieveUpdateAPIView
+    RetrieveUpdateAPIView,
+    get_object_or_404
 )
 from rest_framework.views import APIView
-from chat.models import Chat, Contact
+from chat.models import Chat, Contact, Friend
 from account.models import User
 from chat.views import get_user_contact
-from .serializers import ChatSerializer, FriendsSerializer, ContactSerializer
+from .serializers import ChatSerializer, FriendSerializer, ContactSerializer
 
 
 class ChatListView(ListAPIView):
@@ -54,10 +55,29 @@ class ChatDetailView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class ChatCreateView(CreateAPIView):
-    queryset = Chat.objects.all()
+class ChatCreateView(APIView):
     serializer_class = ChatSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+    def get_chat(self, user, interlocutor):
+        try:
+            chat = Chat.objects.all().filter(participants=user).filter(participants=interlocutor)
+            return chat.first()
+        except Chat.DoesNotExist:
+            chat = Chat.objects.create()
+            chat.participants.add(user, interlocutor)
+            chat.save()
+            return chat
+
+    def post(self, request):
+        person_id = request.data.get('person_id')
+        user = get_user_contact(request.user.username)
+        interlocutor_user = User.objects.get(pk=person_id)
+        interlocutor = get_user_contact(interlocutor_user.username)
+        chat = self.get_chat(user, interlocutor)
+        serializer = self.serializer_class(chat, context={'request': request})
+        return Response(serializer.data)
+
 
 
 class ChatUpdateView(UpdateAPIView):
@@ -73,40 +93,25 @@ class ChatDeleteView(DestroyAPIView):
 
 
 class FriendsListView(ListAPIView):
-    serializer_class = FriendsSerializer
+    serializer_class = FriendSerializer
     permission_classes = (permissions.IsAuthenticated, )
     queryset = Contact.objects.all()
 
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
-        queryset = contact.friends.all()
+        queryset = contact.friends.filter(status='добавлен')
         return queryset
 
 
-class FriendsUpdateView(RetrieveUpdateAPIView):
-    serializer_class = FriendsSerializer
+class FriendsRequestsView(ListAPIView):
+    serializer_class = FriendSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    queryset = Contact.objects.all()
 
-    def get_object(self, pk):
-        try:
-            contact = Contact.objects.get(pk=pk)
-            return contact
-        except:
-            contact = Contact()
-            contact.user = User.objects.get(pk=pk)
-            contact.save()
-            return contact
-
-    def update(self, request, *args, **kwargs):
-        contact = self.get_object(pk=request.user.pk)
-        new_friend = self.get_object(pk=request.data.get('new_friend_id'))
-        contact.friends.add(new_friend)
-        new_friend.friends.add(contact)
-        contact.save()
-        new_friend.save()
-        friends = contact.friends.all()
-        serializer = self.serializer_class(friends, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        contact = get_user_contact(self.request.user.username)
+        queryset = contact.friends.filter(status='ожидает')
+        return queryset
 
 
 class ContactListView(ListAPIView):
@@ -116,4 +121,31 @@ class ContactListView(ListAPIView):
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
         friends = contact.friends.all()
-        return Contact.objects.exclude(friends__in=friends)
+        return Contact.objects.exclude(friend__in=friends).exclude(user__pk=self.request.user.id)
+
+
+class AddFriendView(APIView):
+    serializer_class = ContactSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        person_id = request.data.get('person_id')
+        contact = get_user_contact(self.request.user.username)
+        friend = get_object_or_404(Contact, pk=person_id)
+        new_friend = Friend(contact=contact, friend=friend)
+        new_friend.save()
+        serializer = self.serializer_class(friend)
+        return Response(serializer.data)
+
+
+class DeleteFriendView(APIView):
+    serializer_class = ContactSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        person_id = request.data.get('person_id')
+        contact = get_user_contact(self.request.user.username)
+        friend = Contact.objects.get(user__id=person_id)
+        contact.friends.remove(friend)
+        serializer = self.serializer_class(friend)
+        return Response(serializer.data, status=status.HTTP_200_OK)

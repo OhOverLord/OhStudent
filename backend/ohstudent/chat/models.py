@@ -1,9 +1,15 @@
 from django.db import models
 from account.models import User
 
+
+FRIEND_STATUS = (
+    ('добавлен', 'добавлен'),
+    ('ожидает', 'ожидает')
+)
+
+
 class Contact(models.Model):
     user = models.ForeignKey(User, related_name='friends', on_delete=models.CASCADE)
-    friends = models.ManyToManyField('self', blank=True)
 
     def __str__(self):
         return self.user.username
@@ -24,3 +30,9 @@ class Chat(models.Model):
 
     def __str__(self):
         return f"{self.pk}"
+
+
+class Friend(models.Model):
+    contact = models.ForeignKey(Contact, blank=True, related_name='friends', on_delete=models.CASCADE)
+    friend = models.ForeignKey(Contact, blank=True, on_delete=models.CASCADE)
+    status = models.CharField(max_length=100, choices=FRIEND_STATUS, null=True, blank=True, default='ожидает')
