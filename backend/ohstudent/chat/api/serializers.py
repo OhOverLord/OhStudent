@@ -35,11 +35,12 @@ class ContactSerializer(serializers.ModelSerializer):
 
 class FriendSerializer(serializers.ModelSerializer):
     friend = ContactSerializer()
+    contact = ContactSerializer()
     
     class Meta:
         model = Friend
-        fields = ('friend', )
-        read_only = ('friend')
+        fields = ('friend', 'contact')
+        read_only = ('friend', 'contact')
 
 
 class ChatSerializer(serializers.ModelSerializer):

@@ -20,34 +20,27 @@
                     <input type="text" class="search-input">
                     <button class="search-btn btn">Искать</button>
                 </div>
-                <div class="friend" v-for="person in accounts" :key="person.id">
+                <div class="friend" v-for="(person, i) in accounts" :key="i">
                     <div class="person">
                         <div class="profile-image"></div>
                         <span class="fio">{{person.user.first_name}} {{person.user.last_name}}</span>
                     </div>
                     <div class="buttons">
-                        <button class="add-friend btn" @click="addFriend(person.user.id)">Добавить</button>
+                        <button class="add-friend btn" @click="addFriend(person.user.id, i)">Добавить</button>
                         <button class="send-message btn" @click="startChat(person.user.id)">Написать</button>
                     </div>
                 </div>
             </div>
             <div class="friend-requests">
                 <h2>Заявки в друзья</h2>
-                <div class="friend" v-for="person in friendRequests" :key="person.id">
+                <div class="friend" v-for="(friends, i) in friendRequests" :key="i">
                     <div class="person">
                         <div class="profile-image"></div>
-                        <span class="fio">{{person.friend.user.first_name}} {{person.friend.user.last_name}}</span>
+                        <span class="fio">{{friends.contact.user.first_name}} {{friends.contact.user.last_name}}</span>
                     </div>
                     <div class="buttons">
-                        <button class="add-friend btn" @click="addFriend(person.user.id)">Добавить</button>
-                        <button class="send-message btn" @click="startChat(person.user.id)">Написать</button>
-                    </div>
-                </div>
-                <h2>Отправленные заявки</h2>
-                <div class="friend" v-for="person in accounts" :key="person.id">
-                    <div class="person">
-                        <div class="profile-image"></div>
-                        <span class="fio">{{person.user.first_name}} {{person.user.last_name}}</span>
+                        <button class="add-friend btn" @click="addFriend(friends.contact.user.id)">Добавить</button>
+                        <button class="send-message btn" @click="startChat(friends.contact.user.id)">Написать</button>
                     </div>
                 </div>
             </div>
@@ -86,21 +79,22 @@ export default {
         getFriendRequests() {
             jwtInterceptor.get('http://127.0.0.1:8000/chat/friend-requests-list/').then(response => {
                 this.friendRequests = response.data
+                console.log(response.data)
             })
             .catch(err => { 
                 console.warn(err.response)
             })
         },
-        addFriend(personId) {
+        addFriend(personId, i) {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/add-friend/', {
                 person_id: personId
             }).then(response => {
-                this.friends.push(response.data)
-                this.getAllContacts()
+                console.log(response)
             })
             .catch(err => { 
                 console.warn(err.response)
             })
+            console.log(personId, i)
         },
         deleteFriend(personId) {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/delete-friend/', {
@@ -113,17 +107,10 @@ export default {
             .catch(err => { 
                 console.warn(err.response)
             })
+            console.log(personId)
         },
         startChat(personId) {
-            console.log(this.accounts)
-            jwtInterceptor.post('http://127.0.0.1:8000/chat/create/', {
-                person_id: personId
-            }).then(response => {
-                console.log(response.data)
-            })
-            .catch(err => { 
-                console.warn(err.response)
-            })
+            console.log(personId)
         }
     },
     mounted() {

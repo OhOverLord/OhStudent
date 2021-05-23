@@ -1,5 +1,6 @@
 from typing import List
 from django.contrib.auth import get_user, get_user_model
+from django.db.models import query
 from django.http import Http404
 from rest_framework import permissions, serializers
 from rest_framework.response import Response
@@ -110,7 +111,7 @@ class FriendsRequestsView(ListAPIView):
 
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
-        queryset = contact.friends.filter(status='ожидает')
+        queryset = contact.friends.all()
         return queryset
 
 
@@ -120,8 +121,9 @@ class ContactListView(ListAPIView):
 
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
-        friends = contact.friends.all()
-        return Contact.objects.exclude(friend__in=friends).exclude(user__pk=self.request.user.id)
+        friendrequests = contact.friendrequests.all().values('friend')
+        friends = contact.friends.all().values('contact')
+        return Contact.objects.exclude(id__in=friendrequests).exclude(id__in=friends).exclude(user__pk=self.request.user.id)
 
 
 class AddFriendView(APIView):

@@ -33,6 +33,6 @@ class Chat(models.Model):
 
 
 class Friend(models.Model):
-    contact = models.ForeignKey(Contact, blank=True, related_name='friends', on_delete=models.CASCADE)
-    friend = models.ForeignKey(Contact, blank=True, on_delete=models.CASCADE)
+    contact = models.ForeignKey(Contact, blank=True, related_name='friendrequests', on_delete=models.CASCADE)
+    friend = models.ForeignKey(Contact, blank=True, related_name='friends', on_delete=models.CASCADE)
     status = models.CharField(max_length=100, choices=FRIEND_STATUS, null=True, blank=True, default='ожидает')
