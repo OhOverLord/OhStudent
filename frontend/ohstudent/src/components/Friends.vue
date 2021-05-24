@@ -39,7 +39,7 @@
                         <span class="fio">{{friends.contact.user.first_name}} {{friends.contact.user.last_name}}</span>
                     </div>
                     <div class="buttons">
-                        <button class="add-friend btn" @click="addFriend(friends.contact.user.id)">Добавить</button>
+                        <button class="add-friend btn" @click="applyFriend(friends.contact.user.id)">Добавить</button>
                         <button class="send-message btn" @click="startChat(friends.contact.user.id)">Написать</button>
                     </div>
                 </div>
@@ -70,16 +70,20 @@ export default {
         },
         getAllFriends() {
             jwtInterceptor.get('http://127.0.0.1:8000/chat/friends-list/').then(response => {
-                this.friends = response.data
+                for(let pairs of response.data)
+                    if(pairs.contact.user.username != localStorage.getItem('username'))
+                        this.friends.push(pairs.contact)
+                    else
+                        this.friends.push(pairs.friend)
+                console.log(this.friends)
             })
             .catch(err => { 
-                console.warn(err.response)
+                console.warn(err)
             })
         },
         getFriendRequests() {
             jwtInterceptor.get('http://127.0.0.1:8000/chat/friend-requests-list/').then(response => {
                 this.friendRequests = response.data
-                console.log(response.data)
             })
             .catch(err => { 
                 console.warn(err.response)
@@ -101,8 +105,6 @@ export default {
                 person_id: personId
             }).then(response => {
                 console.log(response)
-                this.accounts.push(response.data)
-                this.getAllFriends()
             })
             .catch(err => { 
                 console.warn(err.response)
@@ -110,6 +112,17 @@ export default {
             console.log(personId)
         },
         startChat(personId) {
+            console.log(personId)
+        },
+        applyFriend(personId) {
+            jwtInterceptor.post('http://127.0.0.1:8000/chat/apply-friend/', {
+                person_id: personId
+            }).then(response => {
+                console.log(response)
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
             console.log(personId)
         }
     },

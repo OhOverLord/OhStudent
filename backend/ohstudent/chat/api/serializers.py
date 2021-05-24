@@ -39,7 +39,7 @@ class FriendSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Friend
-        fields = ('friend', 'contact')
+        fields = ('friend', 'contact', 'status')
         read_only = ('friend', 'contact')
 
 

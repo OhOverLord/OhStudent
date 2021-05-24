@@ -1,17 +1,11 @@
-from typing import List
-from django.contrib.auth import get_user, get_user_model
-from django.db.models import query
 from django.http import Http404
-from rest_framework import permissions, serializers
+from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
-    RetrieveAPIView,
-    CreateAPIView,
     DestroyAPIView,
     UpdateAPIView,
-    RetrieveUpdateAPIView,
     get_object_or_404
 )
 from rest_framework.views import APIView
@@ -19,6 +13,7 @@ from chat.models import Chat, Contact, Friend
 from account.models import User
 from chat.views import get_user_contact
 from .serializers import ChatSerializer, FriendSerializer, ContactSerializer
+from django.db.models import Q
 
 
 class ChatListView(ListAPIView):
@@ -100,8 +95,8 @@ class FriendsListView(ListAPIView):
 
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
-        queryset = contact.friends.filter(status='добавлен')
-        return queryset
+        print(Friend.objects.filter(Q(contact=contact) | Q(friend=contact)))
+        return Friend.objects.filter(Q(contact=contact) | Q(friend=contact)).filter(status="добавлен")
 
 
 class FriendsRequestsView(ListAPIView):
@@ -112,7 +107,7 @@ class FriendsRequestsView(ListAPIView):
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
         queryset = contact.friends.all()
-        return queryset
+        return Friend.objects.filter(friend=contact).filter(status="ожидает")
 
 
 class ContactListView(ListAPIView):
@@ -137,6 +132,21 @@ class AddFriendView(APIView):
         new_friend = Friend(contact=contact, friend=friend)
         new_friend.save()
         serializer = self.serializer_class(friend)
+        return Response(serializer.data)
+
+
+class ApplyFriendView(APIView):
+    serializer_class = FriendSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        person_id = request.data.get('person_id')
+        contact = get_user_contact(self.request.user.username)
+        friend_request = get_object_or_404(Contact, pk=person_id)
+        friends = Friend.objects.get(contact=friend_request, friend=contact)
+        friends.status = "добавлен"
+        friends.save()
+        serializer = self.serializer_class(friends)
         return Response(serializer.data)
 
 

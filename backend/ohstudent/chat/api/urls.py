@@ -15,4 +15,5 @@ urlpatterns = [
     path('contact-list/', ContactListView.as_view()),
     path('add-friend/', AddFriendView.as_view()),
     path('delete-friend/', DeleteFriendView.as_view()),
+    path('apply-friend/', ApplyFriendView.as_view()),
 ]
