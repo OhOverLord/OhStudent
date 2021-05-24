@@ -148,7 +148,8 @@ export default {
     .catch(err => { 
             console.warn(err.response)
         })
-    this.openChat(self.id, '')
+    if(self.id)
+        this.openChat(self.id, '')
   }
 }
 </script>

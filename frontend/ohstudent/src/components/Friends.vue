@@ -17,10 +17,9 @@
             <div class="add-friends-container">
                 <h2>Найти друга</h2>
                 <div class="search-friend-container">
-                    <input type="text" class="search-input">
-                    <button class="search-btn btn">Искать</button>
+                    <input type="text" class="search-input" v-model="search">
                 </div>
-                <div class="friend" v-for="(person, i) in accounts" :key="i">
+                <div class="friend" v-for="(person, i) in filteredAccounts" :key="i">
                     <div class="person">
                         <div class="profile-image"></div>
                         <span class="fio">{{person.user.first_name}} {{person.user.last_name}}</span>
@@ -56,7 +55,8 @@ export default {
         return {
             accounts: [],
             friends: [],
-            friendRequests: []
+            friendRequests: [],
+            search: '',
         }
     },
     methods: {
@@ -90,16 +90,20 @@ export default {
                 console.warn(err.response)
             })
         },
-        addFriend(personId, i) {
+        addFriend(personId, index) {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/add-friend/', {
                 person_id: personId
             }).then(response => {
-                this.accounts.splice(i, 1);
+                this.accounts.find((o, i) => {
+                    if (o.user.id === this.filteredAccounts[index].user.id) {
+                        this.accounts.splice(i, 1)
+                        return true;
+                    }
+                })
             })
             .catch(err => { 
                 console.warn(err.response)
             })
-            console.log(personId, i)
         },
         deleteFriend(i, personId) {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/delete-friend/', {
@@ -135,6 +139,16 @@ export default {
         this.getAllContacts()
         this.getAllFriends()
         this.getFriendRequests()
+    },
+    computed: {
+        filteredAccounts(){
+            const value = this.search.toLowerCase();
+            return this.accounts.filter(function(account){
+                return account.user.first_name.toLowerCase().indexOf(value) > -1 ||
+                        account.user.last_name.toLowerCase().indexOf(value) > -1 ||
+                        (account.user.first_name.toLowerCase() + ' ' + account.user.last_name.toLowerCase()).indexOf(value) > -1
+            })
+        },
     }
 }
 </script>
@@ -152,7 +166,7 @@ export default {
 }
 
 .search-input {
-    width: 60%;
+    width: 100%;
     height: 3em;
     border: 3px solid #DDBBD9;
     box-sizing: border-box;
@@ -208,17 +222,6 @@ export default {
     border-radius: 8px;
     cursor: pointer;
     border: none;
-}
-
-.search-btn {
-    background: #DDBBD9;
-    width: 30%;
-    margin-left: 10px;
-    box-sizing: border-box;
-}
-
-.search-btn:hover {
-    background: #CFA0CA;
 }
 
 .fio {
@@ -278,7 +281,7 @@ h2 {
 }
 
 .search-friend-container {
-    width: 70%;
+    width: 90%;
     display: flex;
     align-items: center;
     justify-content: center;

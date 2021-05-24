@@ -156,7 +156,7 @@ class DeleteFriendView(APIView):
         person_id = request.data.get('person_id')
         contact = get_user_contact(self.request.user.username)
         friend = get_object_or_404(Contact, pk=person_id)
-        friends = contact.friendrequests.get(friend=friend)
+        friends = Friend.objects.filter(Q(contact=contact, friend=friend) | Q(contact=friend, friend=contact))
         friends.delete()
         serializer = self.serializer_class(friend)
         return Response(serializer.data, status=status.HTTP_200_OK)

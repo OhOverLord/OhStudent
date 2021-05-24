@@ -47,6 +47,17 @@ export default new Router({
             props: true
         },
         {
+            path: '/chat',
+            component: () => import('./components/Chat.vue'),
+            beforeEnter: (to, from, next) => {
+                status = localStorage.getItem('status')
+                if(status != 'success')
+                    next({ path: '/login' })
+                else next()
+              },
+            props: true
+        },
+        {
             path: '/friends',
             component: () => import('./components/Friends.vue'),
             beforeEnter: (to, from, next) => {
