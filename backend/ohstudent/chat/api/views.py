@@ -95,7 +95,6 @@ class FriendsListView(ListAPIView):
 
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
-        print(Friend.objects.filter(Q(contact=contact) | Q(friend=contact)))
         return Friend.objects.filter(Q(contact=contact) | Q(friend=contact)).filter(status="добавлен")
 
 
@@ -106,7 +105,6 @@ class FriendsRequestsView(ListAPIView):
 
     def get_queryset(self):
         contact = get_user_contact(self.request.user.username)
-        queryset = contact.friends.all()
         return Friend.objects.filter(friend=contact).filter(status="ожидает")
 
 
@@ -136,7 +134,7 @@ class AddFriendView(APIView):
 
 
 class ApplyFriendView(APIView):
-    serializer_class = FriendSerializer
+    serializer_class = ContactSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
     def post(self, request):
@@ -146,7 +144,7 @@ class ApplyFriendView(APIView):
         friends = Friend.objects.get(contact=friend_request, friend=contact)
         friends.status = "добавлен"
         friends.save()
-        serializer = self.serializer_class(friends)
+        serializer = self.serializer_class(friend_request)
         return Response(serializer.data)
 
 
@@ -157,7 +155,8 @@ class DeleteFriendView(APIView):
     def post(self, request):
         person_id = request.data.get('person_id')
         contact = get_user_contact(self.request.user.username)
-        friend = Contact.objects.get(user__id=person_id)
-        contact.friends.remove(friend)
+        friend = get_object_or_404(Contact, pk=person_id)
+        friends = contact.friendrequests.get(friend=friend)
+        friends.delete()
         serializer = self.serializer_class(friend)
         return Response(serializer.data, status=status.HTTP_200_OK)

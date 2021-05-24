@@ -3,14 +3,14 @@
         <div class="friends-container">
             <div class="my-friends-container">
                 <h2>Мои друзья</h2>
-                <div class="friend" v-for="friend in friends" :key="friend.id" >
+                <div class="friend" v-for="(friend, i) in friends" :key="i" >
                     <div class="person">
                         <div class="profile-image"></div>
                         <span class="fio">{{friend.user.first_name}} {{friend.user.last_name}}</span>
                     </div>
                     <div class="buttons">
                         <button class="send-message btn">Написать</button>
-                        <button class="remove-friend btn" @click="deleteFriend(friend.user.id)">Удалить</button>
+                        <button class="remove-friend btn" @click="deleteFriend(i, friend.user.id)">Удалить</button>
                     </div>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                         <span class="fio">{{friends.contact.user.first_name}} {{friends.contact.user.last_name}}</span>
                     </div>
                     <div class="buttons">
-                        <button class="add-friend btn" @click="applyFriend(friends.contact.user.id)">Добавить</button>
+                        <button class="add-friend btn" @click="applyFriend(i, friends.contact.user.id)">Добавить</button>
                         <button class="send-message btn" @click="startChat(friends.contact.user.id)">Написать</button>
                     </div>
                 </div>
@@ -70,12 +70,12 @@ export default {
         },
         getAllFriends() {
             jwtInterceptor.get('http://127.0.0.1:8000/chat/friends-list/').then(response => {
+                console.log(response.data)
                 for(let pairs of response.data)
                     if(pairs.contact.user.username != localStorage.getItem('username'))
                         this.friends.push(pairs.contact)
                     else
                         this.friends.push(pairs.friend)
-                console.log(this.friends)
             })
             .catch(err => { 
                 console.warn(err)
@@ -84,6 +84,7 @@ export default {
         getFriendRequests() {
             jwtInterceptor.get('http://127.0.0.1:8000/chat/friend-requests-list/').then(response => {
                 this.friendRequests = response.data
+                console.log(response.data)
             })
             .catch(err => { 
                 console.warn(err.response)
@@ -93,35 +94,39 @@ export default {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/add-friend/', {
                 person_id: personId
             }).then(response => {
-                console.log(response)
+                this.accounts.splice(i, 1);
             })
             .catch(err => { 
                 console.warn(err.response)
             })
             console.log(personId, i)
         },
-        deleteFriend(personId) {
+        deleteFriend(i, personId) {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/delete-friend/', {
                 person_id: personId
             }).then(response => {
                 console.log(response)
+                this.friends.splice(i, 1)
+                this.accounts.push(response.data)
             })
             .catch(err => { 
-                console.warn(err.response)
+                console.warn(err)
             })
             console.log(personId)
         },
         startChat(personId) {
             console.log(personId)
         },
-        applyFriend(personId) {
+        applyFriend(i, personId) {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/apply-friend/', {
                 person_id: personId
             }).then(response => {
-                console.log(response)
+                this.friendRequests.splice(i, 1)
+                this.friends.push(response.data)
+                console.log(response.data)
             })
             .catch(err => { 
-                console.warn(err.response)
+                console.warn(err)
             })
             console.log(personId)
         }
