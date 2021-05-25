@@ -171,23 +171,11 @@ export default {
   },
   computed: {
       filteredChats(){
-            // const value = this.search.toLowerCase();
-            // return this.chats.filter(function(chat){
-            //     if (chat.participants[0].user.first_name == this.first_name && chat.participants[0].user.last_name == this.last_name)
-            //         return chat.participants[0].user.first_name.toLowerCase().indexOf(value) > -1 ||
-            //             chat.participants[0].user.last_name.toLowerCase().indexOf(value) > -1 ||
-            //             (chat.participants[0].user.first_name.toLowerCase() + ' ' + chat.participants[0].user.last_name.toLowerCase()).indexOf(value) > -1
-            //     else
-            //         return chat.participants[1].user.first_name.toLowerCase().indexOf(value) > -1 ||
-            //             chat.participants[1].user.last_name.toLowerCase().indexOf(value) > -1 ||
-            //             (chat.participants[1].user.first_name.toLowerCase() + ' ' + chat.participants[1].user.last_name.toLowerCase()).indexOf(value) > -1
-            // })
             const value = this.search.toLowerCase();
             const first_name = this.first_name
             const last_name = this.last_name
             let user_id = 0
             return this.chats.filter(function(chat) {
-                console.log(chat.participants[0].user.first_name, first_name)
                 if (chat.participants[0].user.first_name == first_name && chat.participants[0].user.last_name == last_name)
                     user_id = 1
                 return chat.participants[user_id].user.first_name.toLowerCase().indexOf(value) > -1 ||
