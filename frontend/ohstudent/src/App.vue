@@ -64,7 +64,7 @@ header {
     margin: 0;
     width: 100vw;
     height: 50px;
-    background: #DDBBD9;
+    background: var(--general-color);
 }
 
 .logo {
@@ -140,10 +140,24 @@ a {
 ::-webkit-scrollbar-thumb {
     -webkit-border-radius: 10px;
     border-radius: 10px;
-    background: #EAD0DE; 
+    background: var(--general-color); 
     -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5); 
 }
 ::-webkit-scrollbar-thumb:window-inactive {
 	background: rgba(255,0,0,0.4); 
+}
+
+:root {
+  --general-color: #9ED1AE;
+  --light-general-color: #D5EBDC;
+  --other-color: #E5E5EA;
+  --background-color: #F0F0F0;
+  --button-delete-color: #FEAEAE;
+  --button-delete-color-hover: #FE8686;
+  --add-button-color: #9ED1AE;
+  --add-button-color-hover: #9ED1AE;
+  --button-color: #BEBEDA;
+  --button-color-hover: #A4A4CB;
+  --error-color: #F68F71;
 }
 </style>

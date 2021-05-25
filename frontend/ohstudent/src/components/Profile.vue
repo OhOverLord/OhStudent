@@ -163,7 +163,7 @@ input {
 .profile-container {
     width: 30%;
     height: 80vh;
-    border: 3px solid #EAD0DE;
+    border: 3px solid var(--general-color); 
     border-radius: 38px;
     margin: auto;
     display: flex;
@@ -176,7 +176,7 @@ input {
 .profile-image {
     width: 30%;
     height: 20%;
-    background-color:#C4C4C4;
+    background-color: var(--background-color); 
     border-radius: 10%;
 }
 
@@ -192,7 +192,7 @@ input {
 .save-btn {
     width: 80%;
     height: 30px;
-    background: #EAD0DE;
+    background: var(--general-color); 
     border-radius: 9px;
     border: none;
     cursor: pointer;
@@ -207,7 +207,7 @@ input {
 }
 
 .username, .email, .first_name, .last_name {
-    border-bottom: 3px solid #EAD0DE;
+    border-bottom: 3px solid var(--general-color); 
     width: 80%;
     height: 10%;
     text-align: center;
@@ -219,6 +219,6 @@ input {
 }
 
 .errors {
-    color: #F68F71;
+    color: var(--error-color); 
 }
 </style>

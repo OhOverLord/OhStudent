@@ -170,39 +170,39 @@ export default {
     justify-content: flex-start;
     align-items: center;
     overflow: auto;
-    border-left: 3px solid #DDBBD9;
+    border-left: 3px solid var(--general-color);
 }
 
 .search-input {
     width: 100%;
     height: 3em;
-    border: 3px solid #DDBBD9;
+    border: 3px solid var(--general-color);
     box-sizing: border-box;
     border-radius: 8px;
 }
 
 .add-friend {
-    background: #DDBBD9;
+    background: var(--add-button-color);
 }
 
 .add-friend:hover {
-    background: #CFA0CA;
+    background: var(--add-button-color-hover);
 }
 
 .send-message {
-    background: #BEBEDA;
+    background: var(--button-color);
 }
 
 .send-message:hover {
-    background: #A4A4CB;
+    background: var(--button-color-hover);
 }
 
 .remove-friend {
-    background: #FEAEAE;
+    background: var(--button-delete-color);
 }
 
 .remove-friend:hover {
-    background: #FE8686;
+    background: var(--button-delete-color-hover);
 }
 
 .person {
@@ -239,12 +239,12 @@ export default {
     width: 100%;
 }
 
-.profile-image {
+/* .profile-image {
     width: 70px;
     height: 58px;
     background: #C4C4C4;
     border-radius: 17px;
-}
+} */
 
 h2 {
     font-family: 'Ubuntu', sans-serif; 
@@ -253,7 +253,7 @@ h2 {
 .friends-container {
     width: 90%;
     height: 80vh;
-    border: 3px solid #DDBBD9;
+    border: 3px solid var(--general-color);
     margin: auto;
     margin-top: 50px;
     display: flex;
@@ -270,13 +270,13 @@ h2 {
     justify-content: flex-start;
     align-items: center;
     overflow: auto;
-    border-right: 3px solid #DDBBD9;
+    border-right: 3px solid var(--general-color);
 }
 
 .friend {
     width: 90%;
     height: 87px;
-    border-bottom: 3px solid #DDBBD9;
+    border-bottom: 3px solid var(--general-color);
     border-radius: 16px;
     display: flex;
     margin-top: 10px;
@@ -284,8 +284,8 @@ h2 {
 }
 
 .friend:hover {
-    border-bottom: 3px solid #CFA0CA;
-    background: #F8F2F8;
+    border-bottom: 3px solid var(--general-color);
+    background: var(--light-general-color);
 }
 
 .search-friend-container {

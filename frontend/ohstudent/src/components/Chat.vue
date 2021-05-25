@@ -3,15 +3,13 @@
         <div class="chat-list-container">
             <div class="search-container">
                 <input type="text" class="search-chat">
-                <button class="search-button">Искать</button>
             </div>
             <div class="message-list-container">
                 <div v-for="chat in chats" :key="chat.id" class="message-container" @click="openChat(chat.id)">
-                    <div class="profile-image"></div>
                     <div class="message">
                         <div class="fio" 
-                        v-if="chat.participants[0].user.first_name != last_name
-                              && chat.participants[0].user.last_name != first_name">
+                        v-if="chat.participants[0].user.first_name != first_name
+                              && chat.participants[0].user.last_name != last_name">
                             {{chat.participants[0].user.first_name}}
                             {{chat.participants[0].user.last_name}}
                         </div>
@@ -26,7 +24,7 @@
         </div>
         <div class="chat-container" :class="{'visible': visible}">
             <div class="chat-header">
-                <div class="profile-image"></div>
+                <!-- <div class="profile-image"></div> -->
                 <div class="person-info">
                     <span>{{interclutor_fio}}</span><br>
                     <span class="status">Online</span>
@@ -196,13 +194,13 @@ p {
 
 .from-me {
 	color: white; 
-	background: #EAD0DE;
+	background: var(--general-color);
 	align-self: flex-end;
 		
 	&:before {
 		right: -7px;
         width: 20px;
-        background-color: #EAD0DE;
+        background-color: var(--general-color);
 		border-bottom-left-radius: 16px 14px;
 	}
 
@@ -214,14 +212,14 @@ p {
 	}
 }
 .from-them {
-	background: #E5E5EA;
+	background: var(--other-color);
 	color: black;
     align-self: flex-start;
 		
 	&:before {
         left: -7px;
         width: 20px;
-        background-color: #E5E5EA;
+        background-color: var(--other-color);
         border-bottom-right-radius: 16px 14px;
 	}
 
@@ -252,7 +250,7 @@ p {
 
 .send-message-btn {
     height: 50%;
-    background: #EAD0DE;
+    background: var(--general-color);
     border: none;
     cursor: pointer;
     color: white;
@@ -266,14 +264,14 @@ p {
     width: 70%;
     height: 50%;
     border: none;
-    background: #E4E3E3;
+    background: var(--other-color);
     border-radius: 8px;
 }
 
 .message-input-container {
     width: 100%;
     height: 10%;
-    border-top: 3px solid #EAD0DE;
+    border-top: 3px solid var(--general-color);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -290,17 +288,18 @@ span {
 .chat-header {
     width: 100%;
     height: 11%;
-    border-bottom: 3px solid #EAD0DE;
+    border-bottom: 3px solid var(--general-color);
     display: flex;
 }
 
 .person-info {
-    margin-top: 10px;
+    margin: 10px;
 }
 
 .fio {
-    border-bottom: 3px solid #EAD0DE;
+    border-bottom: 3px solid var(--general-color);
     font-family: 'Noto Sans JP', sans-serif;
+    width: 100%;
 }
 
 .message-short-text {
@@ -310,21 +309,22 @@ span {
     font-size: 80%;
 }
 
-.profile-image {
-    width: 50px;
-    height: 50px;
-    background: #C4C4C4;
-    border-radius: 17px;
-    margin: 10px;
-}
+// .profile-image {
+//     width: 50px;
+//     height: 50px;
+//     background: #C4C4C4;
+//     border-radius: 17px;
+//     margin: 10px;
+// }
 
 .message {
-    width: 60%;
+    width: 80%;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
     font-family: 'Noto Sans JP', sans-serif;
+    padding: 10px;
 }
 
 .add-friend-btn {
@@ -332,7 +332,7 @@ span {
     text-align: center;
     text-decoration: none;
     width: 100%;
-    background: #EAD0DE;
+    background: var(--general-color);
     border: none;
     cursor: pointer;
     color: white;
@@ -341,23 +341,14 @@ span {
 }
 
 .search-chat {
-    width: 70%;
-    border: 2px solid #EAD0DE;
-}
-
-.search-button {
-    margin-left: 10px;
-    border: none;
-    cursor: pointer;
-    background: #EAD0DE;
-    color: white;
-    font-family: 'Noto Sans JP', sans-serif;
+    width: 90%;
+    border: 2px solid var(--general-color);
 }
 
 .message-list-container {
     width: 100%;
     height: 100%;
-    background: #F0F0F0;
+    background: var(--background-color);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -366,7 +357,7 @@ span {
 
 .message-container {
     width: 90%;
-    border: 3px solid #EAD0DE;
+    border: 3px solid var(--general-color);
     margin-top: 5px;
     height: 13%;
     background: white;
@@ -381,7 +372,7 @@ span {
 .search-container {
     width: 100%;
     height: 40px;
-    border-bottom: 3px solid #EAD0DE;
+    border-bottom: 3px solid var(--general-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -392,7 +383,7 @@ span {
     height: 85vh;
     display: flex;
     flex-direction: column;
-    border: 3px solid #EAD0DE;
+    border: 3px solid var(--general-color);
 }
 
 .chat-container {
@@ -401,7 +392,7 @@ span {
     height: 85vh;
     display: flex;
     flex-direction: column;
-    border: 3px solid #EAD0DE;
+    border: 3px solid var(--general-color);
 }
 
 .container {

@@ -68,7 +68,7 @@ export default {
 
 <style scoped>
 .login-container {
-    border: 3px solid #EAD0DE;
+    border: 3px solid var(--general-color); 
     width: 50%;
     height: 550px;
     position: absolute;
@@ -101,7 +101,7 @@ input {
 button {
     width: 80%;
     height: 48px;
-    background: #EAD0DE;
+    background: var(--general-color); 
     border-radius: 9px;
     border: none;
     cursor: pointer;
@@ -117,6 +117,6 @@ button {
 }
 
 .errors {
-    color: #F68F71;
+    color: var(--error-color); 
 }
 </style>
