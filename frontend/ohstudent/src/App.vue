@@ -10,6 +10,8 @@
           <a @click="logout">Logout</a>
         </div>
       </div>
+      <router-link class="logo" to="/friends">friends</router-link>
+      <router-link class="logo" to="/chat">Chat</router-link>
     </header>
     <router-view @status="setStatus" @username="setUsername"></router-view>
   </div>

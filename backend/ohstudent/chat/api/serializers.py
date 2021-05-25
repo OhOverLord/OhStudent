@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 from chat.models import Chat, Contact, Message, Friend
 from chat.views import get_user_contact
+from rest_framework.generics import get_object_or_404
 from account.models import User
 
 
@@ -43,8 +44,13 @@ class FriendSerializer(serializers.ModelSerializer):
         read_only = ('friend', 'contact')
 
 
-class ChatSerializer(serializers.ModelSerializer):
-    participants = ContactSerializer(many=True)
+class GetContactSerializer(serializers.StringRelatedField):        
+    def to_internal_value(self, value):
+        return value
+
+
+class GetChatSerializer(serializers.ModelSerializer):
+    participants = GetContactSerializer(many=True)
     messages = MessageSerializer(many=True)
 
     class Meta:
@@ -54,10 +60,32 @@ class ChatSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         participants = validated_data.pop('participants')
-        chat = Chat()
-        chat.save()
-        for username in participants:
-            contact = get_user_contact(username)
-            chat.participants.add(contact)
-        chat.save()
-        return chat
+        chat = Chat.objects.filter(participants=participants[0]).filter(participants=participants[1])
+        if chat.exists():
+            return chat.first()
+        else:
+            new_chat = Chat()
+            new_chat.save()
+            for user_id in participants:
+                contact = get_object_or_404(Contact, pk=user_id)
+                new_chat.participants.add(contact)
+            new_chat.save()
+            return new_chat
+
+
+class ParticipantListSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        data = data.filter(participants__user=self.context['request'].user)
+        return super(ParticipantListSerializer, self).to_representation(data)
+
+
+class ChatSerializer(serializers.ModelSerializer):
+    participants = ContactSerializer(many=True)
+    messages = MessageSerializer(many=True)
+
+    class Meta:
+        model = Chat
+        fields = ('id', 'messages', 'participants')
+        list_serializer_class = ParticipantListSerializer
+        read_only = ('id')
+            

@@ -9,7 +9,7 @@
                         <span class="fio">{{friend.user.first_name}} {{friend.user.last_name}}</span>
                     </div>
                     <div class="buttons">
-                        <button class="send-message btn">Написать</button>
+                        <button class="send-message btn" @click="startChat(friend.user.username)">Написать</button>
                         <button class="remove-friend btn" @click="deleteFriend(i, friend.user.id)">Удалить</button>
                     </div>
                 </div>
@@ -26,7 +26,7 @@
                     </div>
                     <div class="buttons">
                         <button class="add-friend btn" @click="addFriend(person.user.id, i)">Добавить</button>
-                        <button class="send-message btn" @click="startChat(person.user.id)">Написать</button>
+                        <button class="send-message btn" @click="startChat(person.user.username)">Написать</button>
                     </div>
                 </div>
             </div>
@@ -39,7 +39,7 @@
                     </div>
                     <div class="buttons">
                         <button class="add-friend btn" @click="applyFriend(i, friends.contact.user.id)">Добавить</button>
-                        <button class="send-message btn" @click="startChat(friends.contact.user.id)">Написать</button>
+                        <button class="send-message btn" @click="startChat(friends.contact.user.username)">Написать</button>
                     </div>
                 </div>
             </div>
@@ -70,7 +70,6 @@ export default {
         },
         getAllFriends() {
             jwtInterceptor.get('http://127.0.0.1:8000/chat/friends-list/').then(response => {
-                console.log(response.data)
                 for(let pairs of response.data)
                     if(pairs.contact.user.username != localStorage.getItem('username'))
                         this.friends.push(pairs.contact)
@@ -84,7 +83,6 @@ export default {
         getFriendRequests() {
             jwtInterceptor.get('http://127.0.0.1:8000/chat/friend-requests-list/').then(response => {
                 this.friendRequests = response.data
-                console.log(response.data)
             })
             .catch(err => { 
                 console.warn(err.response)
@@ -109,17 +107,27 @@ export default {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/delete-friend/', {
                 person_id: personId
             }).then(response => {
-                console.log(response)
                 this.friends.splice(i, 1)
                 this.accounts.push(response.data)
             })
             .catch(err => { 
-                console.warn(err)
+                console.warn(err.response)
             })
-            console.log(personId)
         },
-        startChat(personId) {
-            console.log(personId)
+        startChat(username) {
+            let interclutor = username
+            let currentUser = localStorage.getItem('username')
+            jwtInterceptor.post('http://127.0.0.1:8000/chat/create/', {
+                    messages: [],
+                    participants: [interclutor, currentUser]
+            }).then(response => {
+                this.$router.push(`/chat/${response.data.id}`)
+            })
+            .catch(err => { 
+                if (err.response) { 
+                    this.errors = err.response.data.errors
+                }
+            })
         },
         applyFriend(i, personId) {
             jwtInterceptor.post('http://127.0.0.1:8000/chat/apply-friend/', {

@@ -55,7 +55,6 @@ export default new Router({
                     next({ path: '/login' })
                 else next()
               },
-            props: true
         },
         {
             path: '/friends',

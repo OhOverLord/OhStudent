@@ -6,12 +6,18 @@
                 <button class="search-button">Искать</button>
             </div>
             <div class="message-list-container">
-                <div v-for="chat in chats" :key="chat.id" class="message-container" @click="openChat(chat.id, chat.participants[0].user.first_name + ' ' + chat.participants[0].user.last_name)">
+                <div v-for="chat in chats" :key="chat.id" class="message-container" @click="openChat(chat.id)">
                     <div class="profile-image"></div>
                     <div class="message">
-                        <div class="fio">
+                        <div class="fio" 
+                        v-if="chat.participants[0].user.first_name != last_name
+                              && chat.participants[0].user.last_name != first_name">
                             {{chat.participants[0].user.first_name}}
                             {{chat.participants[0].user.last_name}}
+                        </div>
+                        <div v-else class="fio">
+                            {{chat.participants[1].user.first_name}}
+                            {{chat.participants[1].user.last_name}}
                         </div>
                     </div>
                 </div>
@@ -22,7 +28,7 @@
             <div class="chat-header">
                 <div class="profile-image"></div>
                 <div class="person-info">
-                    <span>{{fio}}</span><br>
+                    <span>{{interclutor_fio}}</span><br>
                     <span class="status">Online</span>
                 </div>
             </div>
@@ -52,15 +58,15 @@ export default {
       messageText: '',
       chatId: '',
       visible: true,
-      fio: '',
+      interclutor_fio: '',
+      first_name: localStorage.getItem('first_name'),
+      last_name: localStorage.getItem('last_name')
     }
   },
   methods: {
-    openChat(chatId, fio) {
+    openChat(chatId) {
         this.chatId = chatId
-        this.visible = false
         this.connect(chatId, 'fetchMessages')
-        this.fio = fio
     },
     newMessage() {
         if(this.messageText != '')
@@ -75,15 +81,24 @@ export default {
         else {alert('Напишите сообщение... :)')}
     },
     connect(chatUrl, func_name) {
+        jwtInterceptor.get(`http://127.0.0.1:8000/chat/${chatUrl}/`).then(response => {
+            let participants = response.data.participants
+            if (participants[0].user.first_name != this.first_name && participants[0].user.last_name != this.last_name)
+                this.interclutor_fio = participants[0].user.first_name + ' ' + participants[0].user.last_name
+            else
+                this.interclutor_fio = participants[1].user.first_name + ' ' + participants[1].user.last_name
+            this.visible = false
+        })
+        .catch(err => { 
+            this.visible = true
+            console.warn(err.response)
+        })
         const path = `ws://127.0.0.1:8000/ws/chat/${chatUrl}/`;
         this.socketRef = new WebSocket(path);
         this.socketRef.onopen = () => {
             console.log("WebSocket open");
             if(func_name == 'fetchMessages')
-            {
-                console.log('lol')
                 this.fetchMessages(localStorage.getItem('username'), chatUrl)
-            }
         };
         this.socketRef.onmessage = e => {
             this.socketNewMessage(e.data);
@@ -127,6 +142,7 @@ export default {
         }
         if (command === "new_message") {
             this.messages.push(parsedData.message);
+            console.log(parsedData.message)
         }
     },
     disconnect() {
@@ -143,13 +159,16 @@ export default {
   mounted() {
     jwtInterceptor.get('http://127.0.0.1:8000/chat/').then(response => {
         this.chats = response.data
-        console.log(response)
+        console.log(response.data)
     })
     .catch(err => { 
-            console.warn(err.response)
-        })
-    if(self.id)
-        this.openChat(self.id, '')
+        console.warn(err.response)
+    })
+    if(this.$route.params.id)
+    {
+        this.openChat(this.$route.params.id)
+        console.log(this.$route.params.id)
+    }
   }
 }
 </script>

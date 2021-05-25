@@ -6,13 +6,14 @@ from rest_framework.generics import (
     ListAPIView,
     DestroyAPIView,
     UpdateAPIView,
+    CreateAPIView,
     get_object_or_404
 )
 from rest_framework.views import APIView
 from chat.models import Chat, Contact, Friend
 from account.models import User
 from chat.views import get_user_contact
-from .serializers import ChatSerializer, FriendSerializer, ContactSerializer
+from .serializers import ChatSerializer, FriendSerializer, ContactSerializer, GetChatSerializer
 from django.db.models import Q
 
 
@@ -30,14 +31,15 @@ class ChatDetailView(APIView):
     serializer_class = ChatSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def get_object(self, pk):
+    def get_object(self, pk, user):
         try:
-            return Chat.objects.get(pk=pk)
+            return Chat.objects.get(pk=pk, participants=user)
         except Chat.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
-        chat = self.get_object(pk)
+        user = get_user_contact(request.user.username)
+        chat = self.get_object(pk, user)
         serializer = self.serializer_class(chat, context={'request': request})
         return Response(serializer.data)
 
@@ -52,28 +54,22 @@ class ChatDetailView(APIView):
 
 
 class ChatCreateView(APIView):
-    serializer_class = ChatSerializer
+    queryset = Chat.objects.all()
+    serializer_class = GetChatSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def get_chat(self, user, interlocutor):
-        try:
-            chat = Chat.objects.all().filter(participants=user).filter(participants=interlocutor)
-            return chat.first()
-        except Chat.DoesNotExist:
-            chat = Chat.objects.create()
-            chat.participants.add(user, interlocutor)
-            chat.save()
-            return chat
-
     def post(self, request):
-        person_id = request.data.get('person_id')
-        user = get_user_contact(request.user.username)
-        interlocutor_user = User.objects.get(pk=person_id)
-        interlocutor = get_user_contact(interlocutor_user.username)
-        chat = self.get_chat(user, interlocutor)
-        serializer = self.serializer_class(chat, context={'request': request})
-        return Response(serializer.data)
-
+        request_data = request.data
+        participants = request_data['participants']
+        participants_contacts = []
+        for username in participants:
+            contact = get_user_contact(username)
+            participants_contacts.append(contact.id)
+        request_data['participants'] = participants_contacts
+        serializer = self.serializer_class(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ChatUpdateView(UpdateAPIView):
