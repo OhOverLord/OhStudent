@@ -48,6 +48,7 @@ export default {
                 height: '27rem',
                 resize_enabled: false,
             },
+            data: '',
         };
     }
 }
@@ -186,6 +187,5 @@ export default {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px;
 }
 </style>
