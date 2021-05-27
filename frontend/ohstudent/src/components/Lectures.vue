@@ -21,22 +21,66 @@
         </div>
         <div class="lecture-container">
             <div class="lecture-header">
-                <span class="lecture-title">Лекция по истории</span>
+                <input type="text" class="lecture-title" value="Лекция по истории">
                 <span class="lecture-date">29.03.2021</span>
             </div>
-            <div class="lecture-body"></div>
-            <div class="lecture-footer"></div>
+            <div class="lecture-body">
+                <ckeditor class="lecture-input" v-model="editorData" :config="editorConfig"></ckeditor>
+            </div>
+            <div class="lecture-footer">
+                <div class="buttons-container">
+                    <button class="share-button btn">Поделиться</button>
+                    <button class="share-button btn">Импорт</button>
+                </div>
+                <button class="delete-button btn">Удалить</button>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-export default {
 
+export default {
+    data() {
+        return {
+            editorData: '<p>Записывайте лекцию здесь :)</p>',
+            editorConfig: {
+                height: '27rem',
+                resize_enabled: false,
+            },
+        };
+    }
 }
 </script>
 
 <style scoped>
+.buttons-container {
+    width: 30%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.share-button {
+    background: var(--add-button-color);
+}
+
+.btn {
+    width: 48%;
+    color: white;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+}
+
+.delete-button {
+    width: 15%;
+    background: var(--button-delete-color);
+}
+
 .container {
     width: 98vw;
     height: 85vh;
@@ -48,7 +92,7 @@ export default {
 
 .lectures-container {
     width: 20%;
-    height: 100%;
+    height: 39em;
     border: 3px solid var(--general-color);
     box-sizing: border-box;
     display: flex;
@@ -57,7 +101,7 @@ export default {
 
 .lecture-container {
     width: 79%;
-    height: 100%;
+    height: 39em;
     border: 3px solid var(--general-color);
     box-sizing: border-box;
     display: flex;
@@ -136,9 +180,12 @@ export default {
 
 .lecture-footer {
     width: 100%;
-    padding: 10px;
     min-height: 7%;
     border-top: 3px solid var(--general-color);
     box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
 }
 </style>
