@@ -13,13 +13,21 @@ from rest_framework.generics import (
 from rest_framework.views import APIView
 
 from .models import Lecture
+from account.models import User
 from .serializers import LectureSerializer
 
 
-class LectureCreateAPIView(CreateAPIView):
-    queryset = Lecture.objects.all()
+class LectureCreateAPIView(APIView):
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
+    
+    def post(self, request):
+        request_data = request.data
+        request_data['user'] = request.user.pk
+        serializer = self.serializer_class(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class LectureDetailView(RetrieveAPIView):
@@ -44,6 +52,4 @@ class LecuresListView(ListAPIView):
     permission_classes = (permissions.IsAuthenticated, )
 
     def get_queryset(self):
-        contact = get_user_contact(self.request.user.username)
-        queryset = contact.chats.filter(participants__id=self.request.user.id)
-        return queryset
+        return Lecture.objects.filter(user__pk=self.request.user.pk)
