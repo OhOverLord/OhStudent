@@ -18,3 +18,4 @@ class Lecture(models.Model):
 
     def get_absolute_url(self):
         return reverse('lectures:lecture-detail', args=[str(self.id)])
+    

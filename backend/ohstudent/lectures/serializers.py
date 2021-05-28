@@ -7,5 +7,5 @@ class LectureSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Lecture
-        fields = ['title', 'description', 'created_at', 'status', 'updated_at', 'absolute_url']
+        fields = '__all__'
         read_only_fields = ('created_at', 'status', 'absolute_url', 'updated_at')

@@ -23,8 +23,9 @@ class LectureCreateAPIView(APIView):
     
     def post(self, request):
         request_data = request.data
+        print(request.user.pk)
         request_data['user'] = request.user.pk
-        serializer = self.serializer_class(data=request_data)
+        serializer = self.serializer_class(data=request_data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
