@@ -37,3 +37,13 @@ class LectureDeleteView(DestroyAPIView):
     queryset = Lecture.objects.all()
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+
+class LecuresListView(ListAPIView):
+    serializer_class = LectureSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get_queryset(self):
+        contact = get_user_contact(self.request.user.username)
+        queryset = contact.chats.filter(participants__id=self.request.user.id)
+        return queryset
