@@ -41,10 +41,21 @@ class LectureDetailView(APIView):
         return Response(serializer.data)
 
 
-class LectureUpdateView(UpdateAPIView):
+class LectureUpdateView(APIView):
     queryset = Lecture.objects.all()
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request, pk):
+        lecture = get_object_or_404(Lecture, pk=pk, user__id=request.user.pk)
+        serializer = self.serializer_class(
+            lecture, data=request.data, partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 class LectureDeleteView(DestroyAPIView):
     queryset = Lecture.objects.all()
