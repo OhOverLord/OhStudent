@@ -25,16 +25,20 @@ class LectureCreateAPIView(APIView):
         request_data = request.data
         print(request.user.pk)
         request_data['user'] = request.user.pk
-        serializer = self.serializer_class(data=request_data, context={'request': request})
+        serializer = self.serializer_class(data=request_data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class LectureDetailView(RetrieveAPIView):
-    queryset = Lecture.objects.all()
+class LectureDetailView(APIView):
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request, pk):
+        lecture = get_object_or_404(Lecture, pk=pk, user__id=request.user.pk)
+        serializer = self.serializer_class(lecture)
+        return Response(serializer.data)
 
 
 class LectureUpdateView(UpdateAPIView):
