@@ -4,11 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
-    DestroyAPIView,
-    UpdateAPIView,
-    CreateAPIView,
     get_object_or_404,
-    RetrieveAPIView
 )
 from rest_framework.views import APIView
 
@@ -57,10 +53,14 @@ class LectureUpdateView(APIView):
 
 
 
-class LectureDeleteView(DestroyAPIView):
-    queryset = Lecture.objects.all()
+class LectureDeleteView(APIView):
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
+
+    def delete(self, request, pk):
+        lecture = get_object_or_404(Lecture, pk=pk, user__id=request.user.pk)
+        lecture.delete()
+        return Response(status=status.HTTP_200_OK)
 
 
 class LecuresListView(ListAPIView):
