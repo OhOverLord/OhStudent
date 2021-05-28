@@ -7,7 +7,33 @@ from rest_framework.generics import (
     DestroyAPIView,
     UpdateAPIView,
     CreateAPIView,
-    get_object_or_404
+    get_object_or_404,
+    RetrieveAPIView
 )
 from rest_framework.views import APIView
 
+from .models import Lecture
+from .serializers import LectureSerializer
+
+
+class LectureCreateAPIView(CreateAPIView):
+    queryset = Lecture.objects.all()
+    serializer_class = LectureSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class LectureDetailView(RetrieveAPIView):
+    queryset = Lecture.objects.all()
+    serializer_class = LectureSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class LectureUpdateView(UpdateAPIView):
+    queryset = Lecture.objects.all()
+    serializer_class = LectureSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+class LectureDeleteView(DestroyAPIView):
+    queryset = Lecture.objects.all()
+    serializer_class = LectureSerializer
+    permission_classes = (permissions.IsAuthenticated, )

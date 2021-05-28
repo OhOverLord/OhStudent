@@ -27,13 +27,6 @@
             <div class="lecture-body">
                 <ckeditor class="lecture-input" v-model="editorData" :config="editorConfig"></ckeditor>
             </div>
-            <div class="lecture-footer">
-                <div class="buttons-container">
-                    <button class="share-button btn">Поделиться</button>
-                    <button class="share-button btn">Импорт</button>
-                </div>
-                <button class="delete-button btn">Удалить</button>
-            </div>
         </div>
     </div>
 </template>
@@ -45,7 +38,7 @@ export default {
         return {
             editorData: '<p>Записывайте лекцию здесь :)</p>',
             editorConfig: {
-                height: '27rem',
+                height: '29rem',
                 resize_enabled: false,
             },
             data: '',
@@ -65,21 +58,6 @@ export default {
 
 .share-button {
     background: var(--add-button-color);
-}
-
-.btn {
-    width: 48%;
-    color: white;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 100%;
-    border-radius: 8px;
-    cursor: pointer;
-    border: none;
-}
-
-.delete-button {
-    width: 15%;
-    background: var(--button-delete-color);
 }
 
 .container {
@@ -103,7 +81,7 @@ export default {
 .lecture-container {
     width: 79%;
     height: 39em;
-    border: 3px solid var(--general-color);
+    border-bottom: none;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -170,7 +148,7 @@ export default {
     justify-content: space-between;
     padding: 10px;
     width: 100%;
-    border-bottom: 3px solid var(--general-color);
+    border: 3px solid var(--general-color);
     box-sizing: border-box;
 }
 
@@ -179,13 +157,4 @@ export default {
     height: 100%;
 }
 
-.lecture-footer {
-    width: 100%;
-    min-height: 7%;
-    border-top: 3px solid var(--general-color);
-    box-sizing: border-box;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
 </style>
