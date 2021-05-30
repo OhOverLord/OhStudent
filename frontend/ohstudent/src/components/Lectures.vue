@@ -29,7 +29,8 @@
                 <input type="text" class="lecture-title" v-model="lectureTitle" maxlength="30">
                 <div class="buttons-container">
                     <div class="share-btn btn"></div>
-                    <div class="save-btn btn" @click="save"></div>
+                    <div class="save-btn btn" @click="save" v-if="!loading"></div>
+                    <clip-loader v-else :loading="loading" :color="color" :size="size"></clip-loader>
                     <div class="delete-btn btn"></div>
                 </div>
             </div>
@@ -42,11 +43,13 @@
 
 <script>
 import jwtInterceptor from '@/jwtInterceptor'
+import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
+import _ from 'lodash';
 
 export default {
     data() {
         return {
-            editorData: '<p>Записывайте лекцию здесь :)</p>',
+            editorData: '',
             editorConfig: {
                 height: '29rem',
                 resize_enabled: false,
@@ -58,6 +61,9 @@ export default {
             visible: true,
             choose: false,
             lecture: {},
+            color: '#9ED1AE',
+            size: '30px',
+            loading:false
         };
     },
     methods: {
@@ -79,26 +85,28 @@ export default {
         save() {
             if(!this.choose)
             {
-                if(this.lectureTitle != '' && this.editorConfig != '')
+                if(this.lectureTitle != '' && this.editorData != '')
+                {
                     jwtInterceptor.post('http://127.0.0.1:8000/lectures/create/', {
                         title: this.lectureTitle,
                         description: this.editorData
                     }).then(response => {
                         this.lectures.unshift(response.data)
-                        console.log(response.data)
-                        console.log('lol')
+                        this.choose = true
+                        this.lecture = response.data
                     })
                     .catch(err => { 
                         console.warn(err.response)
                     })
+                }
                 else
-                    alert('Заполните поля!')
+                    return
             }
             else
                 this.update()
+            this.loading = false
         },
         update() {
-            console.log(this.lecture)
             jwtInterceptor.post(`http://127.0.0.1:8000/lectures/update/`, {
                 title: this.lectureTitle,
                 description: this.editorData,
@@ -120,6 +128,22 @@ export default {
         .catch(err => { 
             console.warn(err.response)
         })
+    },
+    components: {
+        ClipLoader,
+    },
+    watch: {
+        editorData() {
+            this.loading = true
+            this.debounced()
+        },
+        lectureTitle() {
+            this.loading = true
+            this.debounced()
+        }
+    },
+    created() {
+        this.debounced = _.debounce(this.save, 500)
     },
 }
 </script>

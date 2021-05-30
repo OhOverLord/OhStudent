@@ -22,6 +22,7 @@ class LectureCreateAPIView(APIView):
         request_data['user'] = request.user.pk
         serializer = self.serializer_class(data=request_data)
         serializer.is_valid(raise_exception=True)
+        print(serializer.errors)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -58,7 +59,8 @@ class LectureDeleteView(APIView):
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def delete(self, request, pk):
+    def delete(self, request):
+        pk = request.data.pop('id', None)
         lecture = get_object_or_404(Lecture, pk=pk, user__id=request.user.pk)
         lecture.delete()
         return Response(status=status.HTTP_200_OK)
