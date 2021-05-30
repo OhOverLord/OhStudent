@@ -8,5 +8,6 @@ urlpatterns = [
     path('create/', LectureCreateAPIView.as_view(), name='lecture-create'),
     path('update/', LectureUpdateView.as_view(), name='lecture-update'),
     path('share/', LectureShareView.as_view(), name='lecture-share'),
-    path('lectures-list/', LecuresListView.as_view(), name='lectures-list')
+    path('lectures-list/', LecuresListView.as_view(), name='lectures-list'),
+    path('public-lecture-detail/', PublicLectureDetailView.as_view(), name='public-lecture-detail')
 ]

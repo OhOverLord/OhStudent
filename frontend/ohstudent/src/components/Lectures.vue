@@ -107,6 +107,7 @@ export default {
             this.choose = true
             this.lecture = lecture
             this.index = index
+            console.log(this.lecture)
         },
         newLecture() {
             this.editorData = ''
@@ -172,8 +173,8 @@ export default {
         share() {
             jwtInterceptor.post('http://127.0.0.1:8000/lectures/share/', {
                 id: this.lecture.id
-            }).then(response => {
-                console.log(response.data)
+            }).then(() => {
+                this.$router.push(`/lectures/${this.lecture.absolute_url}`)
             })
             .catch(err => {
                 console.warn(err.response)
@@ -182,7 +183,7 @@ export default {
         },
         showShare() {
             this.showShareModal = true
-            this.link = `http://127.0.0.1:8000/lectures/${this.lecture.absolute_url}`
+            this.link = `http://127.0.0.1:8000/${this.lecture.absolute_url}`
         }
     },
     mounted() {

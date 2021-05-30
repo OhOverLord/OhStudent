@@ -77,18 +77,8 @@ export default new Router({
               }
         },
         {
-            path: '/lecture/:id/',
-            component: () => import('./components/Lectures.vue'),
-            beforeEnter: (to, from, next) => {
-                status = localStorage.getItem('status')
-                if(status != 'success')
-                    next({ path: '/login' })
-                else next()
-              }
-        },
-        {
-            path: '/finance/',
-            component: () => import('./components/Finance.vue'),
+            path: '/lectures/:id/',
+            component: () => import('./components/Lecture.vue'),
             beforeEnter: (to, from, next) => {
                 status = localStorage.getItem('status')
                 if(status != 'success')
