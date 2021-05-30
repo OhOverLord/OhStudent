@@ -28,22 +28,50 @@
             <div class="lecture-header">
                 <input type="text" class="lecture-title" v-model="lectureTitle" maxlength="30">
                 <div class="buttons-container">
-                    <div class="share-btn btn"></div>
+                    <div class="share-btn btn" @click="showShare"></div>
                     <div class="save-btn btn" @click="save" v-if="!loading"></div>
                     <clip-loader v-else :loading="loading" :color="color" :size="size"></clip-loader>
-                    <div class="delete-btn btn" @click="_delete"></div>
+                    <div class="delete-btn btn" @click="showDeleteModal = true"></div>
                 </div>
             </div>
             <div class="lecture-body">
                 <ckeditor class="lecture-input" v-model="editorData" :config="editorConfig"></ckeditor>
             </div>
         </div>
+
+        <modal v-if="showDeleteModal" @close="showDeleteModal = false">
+            <h3 slot="header">Вы точно хотите удалить?</h3>
+            <div class="modal-buttons" slot="footer">
+                <button class="modal-delete modal-btn" @click="share">Удалить</button>
+                <button class="close modal-btn" @click="showDeleteModal = false">Закрыть</button>
+            </div>
+        </modal>
+
+        <modal v-if="showShareModal" @close="showShareModal = false">
+            <h3 slot="header">Поделиться ссылку</h3>
+            <div class="modal-buttons" slot="footer">
+                <button class="modal-delete modal-btn" @click="_delete">Удалить</button>
+                <button class="close modal-btn" @click="showShareModal = false">Закрыть</button>
+            </div>
+        </modal>
+
+        <modal v-if="showShareModal" @close="showShareModal = false">
+            <h3 slot="header">Поделиться:</h3>
+            <div slot="body">
+                <input type="text" class="share-link" v-model="link" readonly>
+            </div>
+            <div class="modal-buttons" slot="footer">
+                <button class="modal-share modal-btn" @click="share">Поделиться</button>
+                <button class="close modal-btn" @click="showShareModal = false">Закрыть</button>
+            </div>
+        </modal>
     </div>
 </template>
 
 <script>
 import jwtInterceptor from '@/jwtInterceptor'
 import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
+import modal from '@/components/Modal'
 import _ from 'lodash';
 
 export default {
@@ -65,6 +93,9 @@ export default {
             size: '30px',
             loading:false,
             index: '',
+            showDeleteModal: false,
+            showShareModal: false,
+            link: '',
         };
     },
     methods: {
@@ -136,7 +167,23 @@ export default {
                 })
             }
             this.visible = true
+            this.showDeleteModal = false
         },
+        share() {
+            jwtInterceptor.post('http://127.0.0.1:8000/lectures/share/', {
+                id: this.lecture.id
+            }).then(response => {
+                console.log(response.data)
+            })
+            .catch(err => {
+                console.warn(err.response)
+            })
+            this.showShareModal = false
+        },
+        showShare() {
+            this.showShareModal = true
+            this.link = `http://127.0.0.1:8000/lectures/${this.lecture.absolute_url}`
+        }
     },
     mounted() {
         jwtInterceptor.get('http://127.0.0.1:8000/lectures/lectures-list/').then(response => {
@@ -148,6 +195,7 @@ export default {
     },
     components: {
         ClipLoader,
+        modal
     },
     watch: {
         editorData() {
@@ -166,6 +214,10 @@ export default {
 </script>
 
 <style scoped>
+.share-link {
+    width: 100%;
+}
+
 .lecture-title {
     width: 30%;
 }
@@ -211,6 +263,34 @@ export default {
 
 .delete-btn:hover {
     background-color: var(--button-delete-color);
+}
+
+.modal-delete {
+    background: var(--button-delete-color);
+}
+
+.modal-delete:hover {
+    background: var(--button-delete-color-hover);
+}
+
+.modal-share {
+    background: var(--add-button-color);
+}
+
+.modal-share:hover {
+    background: var(--add-button-color-hover);
+}
+
+
+.modal-btn {
+  width: 45%;
+  height: 50%;
+  border-radius: 5px;
+  border: none;
+  margin-left: 10px;
+  font-size: 90%;
+  cursor: pointer;
+  color: white;
 }
 
 .new-lecture-img {

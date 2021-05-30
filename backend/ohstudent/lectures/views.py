@@ -61,7 +61,6 @@ class LectureDeleteView(APIView):
 
     def post(self, request):
         pk = request.data.pop('id', None)
-        print(pk)
         lecture = get_object_or_404(Lecture, pk=pk, user__id=request.user.pk)
         lecture.delete()
         return Response(status=status.HTTP_200_OK)
@@ -73,3 +72,17 @@ class LecuresListView(ListAPIView):
 
     def get_queryset(self):
         return Lecture.objects.filter(user__pk=self.request.user.pk)
+
+class LectureShareView(APIView):
+    serializer_class = LectureSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        pk = request.data.pop('id', None)
+        print(pk)
+        lecture = get_object_or_404(Lecture, pk=pk, user__id=request.user.pk)
+        lecture.status = "public"
+        lecture.save()
+        print(lecture)
+        serializer = self.serializer_class(lecture)
+        return Response(serializer.data, status=status.HTTP_200_OK)

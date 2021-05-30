@@ -159,5 +159,5 @@ a {
   --button-color: #BEBEDA;
   --button-color-hover: #A4A4CB;
   --error-color: #F68F71;
-}
+  }
 </style>
