@@ -8,7 +8,7 @@
                 <div class="lecture-tile new-lecture" @click="newLecture">
                     <div class="new-lecture-img"></div>
                 </div>
-                <div class="lecture-tile" v-for="lecture in lectures" :key="lecture.id" @click="chooseLecture(lecture)">
+                <div class="lecture-tile" v-for="(lecture, i) in lectures" :key="lecture.id" @click="chooseLecture(lecture, i)">
                     <div class="lecture-tile-header">
                         <span class="tile-title">{{lecture.title}}</span>
                         <span class="tile-date">{{lecture.created_at.split('T')[0]}}</span>
@@ -31,7 +31,7 @@
                     <div class="share-btn btn"></div>
                     <div class="save-btn btn" @click="save" v-if="!loading"></div>
                     <clip-loader v-else :loading="loading" :color="color" :size="size"></clip-loader>
-                    <div class="delete-btn btn"></div>
+                    <div class="delete-btn btn" @click="_delete"></div>
                 </div>
             </div>
             <div class="lecture-body">
@@ -63,17 +63,19 @@ export default {
             lecture: {},
             color: '#9ED1AE',
             size: '30px',
-            loading:false
+            loading:false,
+            index: '',
         };
     },
     methods: {
-        chooseLecture(lecture) {
+        chooseLecture(lecture, index) {
             this.editorData = lecture.description
             this.lectureTitle = lecture.title
             this.lectureCreatedAt = lecture.created_at.split('T')[0]
             this.visible = false
             this.choose = true
             this.lecture = lecture
+            this.index = index
         },
         newLecture() {
             this.editorData = ''
@@ -119,7 +121,22 @@ export default {
             .catch(err => { 
                 console.warn(err)
             })
-        }
+        },
+        _delete() {
+            if(this.choose) {
+                console.log(this.index)
+                jwtInterceptor.post(`http://127.0.0.1:8000/lectures/delete/`, {
+                    id: this.lecture.id
+                }).then(response => {
+                    console.log(response)
+                    this.lectures.splice(this.index, 1)
+                })
+                .catch(err => { 
+                    console.warn(err)
+                })
+            }
+            this.visible = true
+        },
     },
     mounted() {
         jwtInterceptor.get('http://127.0.0.1:8000/lectures/lectures-list/').then(response => {

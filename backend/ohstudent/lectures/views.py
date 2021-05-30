@@ -59,8 +59,9 @@ class LectureDeleteView(APIView):
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def delete(self, request):
+    def post(self, request):
         pk = request.data.pop('id', None)
+        print(pk)
         lecture = get_object_or_404(Lecture, pk=pk, user__id=request.user.pk)
         lecture.delete()
         return Response(status=status.HTTP_200_OK)
