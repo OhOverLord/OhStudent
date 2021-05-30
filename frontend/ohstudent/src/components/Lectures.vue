@@ -5,24 +5,33 @@
                 <input type="text" class="search">
             </div>
             <div class="lectures-list-container">
-                <div class="lecture-tile">
+                <div class="lecture-tile new-lecture" @click="newLecture">
+                    <div class="new-lecture-img"></div>
+                </div>
+                <div class="lecture-tile" v-for="lecture in lectures" :key="lecture.id" @click="chooseLecture(lecture)">
                     <div class="lecture-tile-header">
-                        <span class="tile-title">Лекция по истории</span>
-                        <span class="tile-date">29.03.2021</span>
+                        <span class="tile-title">{{lecture.title}}</span>
+                        <span class="tile-date">{{lecture.created_at.split('T')[0]}}</span>
                     </div>
                     <div class="lecture-tile-body">
-                        <span class="lecture-tile-description">
-                            Первоначальное значение слова «история» восходит к
-                            древнегреческому термину, означавшему...
+                        <span class="lecture-tile-description" v-if="lecture.description.length < 40">
+                            {{lecture.description.replace(/<\/?[^>]+(>|$)/g, "")}}
+                        </span>
+                        <span class="lecture-tile-description" v-else>
+                            {{lecture.description.substr(0, 40).replace(/<\/?[^>]+(>|$)/g, "")}}...
                         </span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="lecture-container">
+        <div class="lecture-container" :class="{'visible': visible}">
             <div class="lecture-header">
-                <input type="text" class="lecture-title" value="Лекция по истории">
-                <span class="lecture-date">29.03.2021</span>
+                <input type="text" class="lecture-title" v-model="lectureTitle" maxlength="30">
+                <div class="buttons-container">
+                    <div class="share-btn btn"></div>
+                    <div class="save-btn btn" @click="save"></div>
+                    <div class="delete-btn btn"></div>
+                </div>
             </div>
             <div class="lecture-body">
                 <ckeditor class="lecture-input" v-model="editorData" :config="editorConfig"></ckeditor>
@@ -32,6 +41,7 @@
 </template>
 
 <script>
+import jwtInterceptor from '@/jwtInterceptor'
 
 export default {
     data() {
@@ -42,18 +52,137 @@ export default {
                 resize_enabled: false,
             },
             data: '',
+            lectureTitle: '',
+            lectureCreatedAt: '',
+            lectures: [],
+            visible: true,
+            choose: false,
+            lecture: {},
         };
-    }
+    },
+    methods: {
+        chooseLecture(lecture) {
+            this.editorData = lecture.description
+            this.lectureTitle = lecture.title
+            this.lectureCreatedAt = lecture.created_at.split('T')[0]
+            this.visible = false
+            this.choose = true
+            this.lecture = lecture
+        },
+        newLecture() {
+            this.editorData = ''
+            this.lectureTitle = ''
+            this.lectureCreatedAt = new Date().toJSON().slice(0,10).replace(/-/g,'-');
+            this.visible = false
+            this.choose = false
+        },
+        save() {
+            if(!this.choose)
+            {
+                if(this.lectureTitle != '' && this.editorConfig != '')
+                    jwtInterceptor.post('http://127.0.0.1:8000/lectures/create/', {
+                        title: this.lectureTitle,
+                        description: this.editorData
+                    }).then(response => {
+                        this.lectures.unshift(response.data)
+                        console.log(response.data)
+                        console.log('lol')
+                    })
+                    .catch(err => { 
+                        console.warn(err.response)
+                    })
+                else
+                    alert('Заполните поля!')
+            }
+            else
+                this.update()
+        },
+        update() {
+            console.log(this.lecture)
+            jwtInterceptor.post(`http://127.0.0.1:8000/lectures/update/`, {
+                title: this.lectureTitle,
+                description: this.editorData,
+                id: this.lecture.id
+            }).then(response => {
+                console.log(response)
+                this.lecture.title = this.lectureTitle
+                this.lecture.description = this.editorData
+            })
+            .catch(err => { 
+                console.warn(err)
+            })
+        }
+    },
+    mounted() {
+        jwtInterceptor.get('http://127.0.0.1:8000/lectures/lectures-list/').then(response => {
+            this.lectures = response.data
+        })
+        .catch(err => { 
+            console.warn(err.response)
+        })
+    },
 }
 </script>
 
 <style scoped>
-.buttons-container {
+.lecture-title {
     width: 30%;
-    height: 100%;
+}
+
+.buttons-container {
+    width: 20%;
+    height: 2em;
     display: flex;
-    align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
+    border-left: 3px solid var(--general-color);
+    border-right: 3px solid var(--general-color);
+}
+
+.btn {
+    width: 20%;
+    height: 100%;
+    border-radius: 30%;
+    cursor: pointer;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 50%;
+}
+
+.share-btn {
+    background-image: url('~@/assets/share.svg');
+}
+
+.share-btn:hover {
+    background-color: var(--light-general-color);
+}
+
+.save-btn {
+    background-image: url('~@/assets/floppy-disk.svg');
+}
+
+.save-btn:hover {
+    background-color: var(--light-general-color);
+}
+
+.delete-btn {
+    background-image: url('~@/assets/delete.svg');
+}
+
+.delete-btn:hover {
+    background-color: var(--button-delete-color);
+}
+
+.new-lecture-img {
+    width: 50%;
+    height: 50%;
+    background-image: url('~@/assets/plus.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.visible {
+    visibility: hidden;
 }
 
 .share-button {
@@ -70,7 +199,7 @@ export default {
 }
 
 .lectures-container {
-    width: 20%;
+    width: 35em;
     height: 39em;
     border: 3px solid var(--general-color);
     box-sizing: border-box;
@@ -79,7 +208,7 @@ export default {
 }
 
 .lecture-container {
-    width: 79%;
+    width: 55em;
     height: 39em;
     border-bottom: none;
     box-sizing: border-box;
@@ -89,7 +218,7 @@ export default {
 
 .search-container {
     width: 100%;
-    padding: 10px;
+    height: 10%;
     border-bottom: 3px solid var(--general-color);
     display: flex;
     align-items: center;
@@ -99,6 +228,7 @@ export default {
 
 .search {
     width: 90%;
+    height: 50%;
     border: 2px solid var(--general-color);
     box-sizing: border-box;
     font-family: 'Ubuntu', sans-serif;
@@ -124,6 +254,14 @@ export default {
     font-family: 'Ubuntu', sans-serif;
 }
 
+.new-lecture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--light-general-color);
+}
+
 .lecture-tile:hover {
     box-shadow: 8px 4px 16px 5px rgba(0,0,0,0.3);
     cursor: pointer;
@@ -146,8 +284,11 @@ export default {
 .lecture-header {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
     width: 100%;
+    height: 5em;
+    padding-left: 10px;
+    padding-right: 10px;
+    align-items: center;
     border: 3px solid var(--general-color);
     box-sizing: border-box;
 }

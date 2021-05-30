@@ -86,5 +86,15 @@ export default new Router({
                 else next()
               }
         },
+        {
+            path: '/finance/',
+            component: () => import('./components/Finance.vue'),
+            beforeEnter: (to, from, next) => {
+                status = localStorage.getItem('status')
+                if(status != 'success')
+                    next({ path: '/login' })
+                else next()
+              }
+        },
     ]
 })
