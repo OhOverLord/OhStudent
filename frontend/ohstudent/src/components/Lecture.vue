@@ -25,9 +25,10 @@ export default {
             id: this.$route.params.id
         }).then(response => {
             this.lecture = response.data
+            console.log(response.data)
         })
         .catch(err => {
-            this.errors = true
+            this.err = true
         })
     }
 }

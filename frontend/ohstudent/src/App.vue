@@ -148,14 +148,14 @@ a {
 }
 
 :root {
-  --general-color: #9ED1AE;
-  --light-general-color: #D5EBDC;
+  --general-color: #DDBBD9;
+  --light-general-color: #F8F2F8;
   --other-color: #E5E5EA;
   --background-color: #F0F0F0;
   --button-delete-color: #FEAEAE;
   --button-delete-color-hover: #FE8686;
-  --add-button-color: #9ED1AE;
-  --add-button-color-hover: #9ED1AE;
+  --add-button-color: #DDBBD9;
+  --add-button-color-hover: #CFA0CA;
   --button-color: #BEBEDA;
   --button-color-hover: #A4A4CB;
   --error-color: #F68F71;

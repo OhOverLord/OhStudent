@@ -2,13 +2,13 @@
     <div class="container">
         <div class="lectures-container">
             <div class="search-container">
-                <input type="text" class="search">
+                <input type="text" class="search" v-model="search">
             </div>
             <div class="lectures-list-container">
                 <div class="lecture-tile new-lecture" @click="newLecture">
                     <div class="new-lecture-img"></div>
                 </div>
-                <div class="lecture-tile" v-for="(lecture, i) in lectures" :key="lecture.id" @click="chooseLecture(lecture, i)">
+                <div class="lecture-tile" v-for="(lecture, i) in filteredLectures" :key="lecture.id" @click="chooseLecture(lecture, i)">
                     <div class="lecture-tile-header">
                         <span class="tile-title">{{lecture.title}}</span>
                         <span class="tile-date">{{lecture.created_at.split('T')[0]}}</span>
@@ -47,11 +47,11 @@
             </div>
         </modal>
 
-        <modal v-if="showShareModal" @close="showShareModal = false">
+        <modal v-if="showDeleteModal" @close="showDeleteModal = false">
             <h3 slot="header">Поделиться ссылку</h3>
             <div class="modal-buttons" slot="footer">
                 <button class="modal-delete modal-btn" @click="_delete">Удалить</button>
-                <button class="close modal-btn" @click="showShareModal = false">Закрыть</button>
+                <button class="close modal-btn" @click="showDeleteModal = false">Закрыть</button>
             </div>
         </modal>
 
@@ -96,6 +96,7 @@ export default {
             showDeleteModal: false,
             showShareModal: false,
             link: '',
+            search: '',
         };
     },
     methods: {
@@ -174,7 +175,7 @@ export default {
             jwtInterceptor.post('http://127.0.0.1:8000/lectures/share/', {
                 id: this.lecture.id
             }).then(() => {
-                this.$router.push(`/lectures/${this.lecture.absolute_url}`)
+                alert("Ссылка скопирована")
             })
             .catch(err => {
                 console.warn(err.response)
@@ -183,12 +184,13 @@ export default {
         },
         showShare() {
             this.showShareModal = true
-            this.link = `http://127.0.0.1:8000/${this.lecture.absolute_url}`
+            this.link = `http://localhost:8080${this.lecture.absolute_url}`
         }
     },
     mounted() {
         jwtInterceptor.get('http://127.0.0.1:8000/lectures/lectures-list/').then(response => {
             this.lectures = response.data
+            console.log(this.lectures)
         })
         .catch(err => { 
             console.warn(err.response)
@@ -211,6 +213,14 @@ export default {
     created() {
         this.debounced = _.debounce(this.save, 500)
     },
+    computed: {
+        filteredLectures(){
+            const value = this.search.toLowerCase();
+            return this.lectures.filter(function(lecture){
+                return lecture.title.toLowerCase().indexOf(value) > -1
+            })
+        },
+    }
 }
 </script>
 
