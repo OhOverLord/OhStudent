@@ -5,6 +5,7 @@
             <ckeditor v-model="editorData" :config="editorConfig"></ckeditor>
             <p>Создано: {{lecture.created_at.split('T')[0]}}</p>
             <p>Редактировано: {{lecture.updated_at.split('T')[0]}}</p>
+            <p>Пользователь: {{lecture.user.first_name}} {{lecture.user.last_name}} ({{lecture.user.username}})</p>
         </div>
         <div v-else>
             <p>Такой лекции не существует ;(</p>
@@ -25,7 +26,6 @@ export default {
                 height: '29rem',
                 resize_enabled: false,
                 readOnly: true,
-                toolbar: [],
             },
         }
     },

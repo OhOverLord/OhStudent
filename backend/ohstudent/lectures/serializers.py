@@ -1,9 +1,16 @@
-from django.db.models import fields
 from rest_framework import serializers
 from .models import Lecture
+from account.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 class LectureSerializer(serializers.ModelSerializer):
-    absolute_url = serializers.URLField(source='get_absolute_url', read_only=True) 
+    absolute_url = serializers.URLField(source='get_absolute_url', read_only=True)
+    user = UserSerializer()
     
     class Meta:
         model = Lecture
