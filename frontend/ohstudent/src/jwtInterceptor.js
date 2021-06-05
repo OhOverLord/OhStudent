@@ -18,6 +18,7 @@ jwtInterceptor.interceptors.request.use((config) => {
       return response;
     },
     async (error) => {
+      console.log(error.response)
       if (error.response.status === 403) {
         const payload = {
           token: localStorage.getItem('token'),
@@ -33,7 +34,7 @@ jwtInterceptor.interceptors.request.use((config) => {
           "Authorization"
         ] = `Token ${response.data.token}`;
         return axios(error.config);
-      } else if (err.response.status === 500) { 
+      } else if (error.response.status === 500) { 
         this.$router.push('/login');
       } else {
         return Promise.reject(error);

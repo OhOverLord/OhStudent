@@ -7,11 +7,11 @@
         <span class="dropbtn">{{username}}</span>
         <div class="dropdown-content">
           <router-link to="/profile">Profile</router-link>
+          <router-link to="/friends">friends</router-link>
+          <router-link to="/chat">Chat</router-link>
           <a @click="logout">Logout</a>
         </div>
       </div>
-      <router-link class="logo" to="/friends">friends</router-link>
-      <router-link class="logo" to="/chat">Chat</router-link>
     </header>
     <router-view @status="setStatus" @username="setUsername"></router-view>
   </div>
@@ -148,7 +148,7 @@ a {
 }
 
 :root {
-  --general-color: #DDBBD9;
+--general-color: #DDBBD9;
   --light-general-color: #F8F2F8;
   --other-color: #E5E5EA;
   --background-color: #F0F0F0;

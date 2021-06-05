@@ -8,7 +8,7 @@ export default new Router({
     routes: [
         {
             path: '/',
-            component: () => import('./components/Home.vue'),
+            component: () => import('./components/Lectures.vue'),
             beforeEnter: (to, from, next) => {
                 status = localStorage.getItem('status')
                 if(status != 'success')
@@ -67,8 +67,8 @@ export default new Router({
               }
         },
         {
-            path: '/lectures',
-            component: () => import('./components/Lectures.vue'),
+            path: '/lectures/:id/',
+            component: () => import('./components/Lecture.vue'),
             beforeEnter: (to, from, next) => {
                 status = localStorage.getItem('status')
                 if(status != 'success')
@@ -77,8 +77,8 @@ export default new Router({
               }
         },
         {
-            path: '/lectures/:id/',
-            component: () => import('./components/Lecture.vue'),
+            path: '/finance',
+            component: () => import('./components/Finance.vue'),
             beforeEnter: (to, from, next) => {
                 status = localStorage.getItem('status')
                 if(status != 'success')

@@ -48,7 +48,7 @@
         </modal>
 
         <modal v-if="showDeleteModal" @close="showDeleteModal = false">
-            <h3 slot="header">Поделиться ссылку</h3>
+            <h3 slot="header">Вы точно хотите удалить?</h3>
             <div class="modal-buttons" slot="footer">
                 <button class="modal-delete modal-btn" @click="_delete">Удалить</button>
                 <button class="close modal-btn" @click="showDeleteModal = false">Закрыть</button>
