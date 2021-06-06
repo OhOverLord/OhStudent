@@ -19,6 +19,7 @@ class Category(models.Model):
     title = models.CharField(max_length=100)
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='categories')
 
+
 class Consumption(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=100)
