@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 
 from .models import Lecture
 from account.models import User
-from .serializers import LectureSerializer
+from .serializers import LectureSerializer, LectureDetailSerializer
 
 
 class LectureCreateAPIView(APIView):
@@ -86,7 +86,7 @@ class LectureShareView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class PublicLectureDetailView(APIView):
-    serializer_class = LectureSerializer
+    serializer_class = LectureDetailSerializer
     permission_classes = (permissions.AllowAny, )
 
     def post(self, request):

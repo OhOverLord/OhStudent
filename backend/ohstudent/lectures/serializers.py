@@ -10,6 +10,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 class LectureSerializer(serializers.ModelSerializer):
     absolute_url = serializers.URLField(source='get_absolute_url', read_only=True)
+    
+    class Meta:
+        model = Lecture
+        fields = '__all__'
+        read_only_fields = ('created_at', 'status', 'absolute_url', 'updated_at')
+
+
+class LectureDetailSerializer(serializers.ModelSerializer):
+    absolute_url = serializers.URLField(source='get_absolute_url', read_only=True)
     user = UserSerializer()
     
     class Meta:
