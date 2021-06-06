@@ -61,3 +61,34 @@ class WalletDeleteAPIView(APIView):
         wallet = get_object_or_404(Wallet, pk=pk, user__id=request.user.pk)
         wallet.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class CategoryCreateAPIView(CreateAPIView):
+    serializer_class = CategorySerializer
+    queryset = Category.objects.all()
+
+
+class CategoryUpdateView(UpdateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class CategoryDeleteView(DestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class CategoryListView(APIView):
+    serializer_class = CategorySerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        wallet_pk = request.data.pop('wallet', None)
+        if wallet_pk is not None:
+            wallet = get_object_or_404(Wallet, pk=wallet_pk)
+            categories = Category.objects.filter(wallet=wallet)
+            serializer = self.serializer_class(categories, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)

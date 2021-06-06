@@ -10,7 +10,7 @@
                 <span class="balance">10000₽</span>
                 <span class="balance-description">Зарплата</span>
             </div>
-            <div class="wallet add-wallet">
+            <div class="wallet add-wallet" @click="showAddWAlletModal = true">
             </div>
         </div>
         <div class="finance-container">
@@ -65,16 +65,54 @@
                 </div>
             </div>
         </div>
+        <modal v-if="showAddWAlletModal" @close="showAddWAlletModal = false">
+            <h3 slot="header">Добавить кошелёк:</h3>
+            <div slot="body">
+                <input type="text" class="share-link" v-model="link" readonly>
+            </div>
+            <div class="modal-buttons" slot="footer">
+                <button class="modal-share modal-btn" @click="share">Добавить</button>
+                <button class="close modal-btn" @click="showAddWAlletModal = false">Закрыть</button>
+            </div>
+        </modal>
     </div>
 </template>
 
 <script>
-export default {
+import modal from '@/components/Modal'
 
+export default {
+    data() {
+        return {
+            showAddWAlletModal: false,
+        }
+    },
+    components: {
+        modal,
+    }
 }
 </script>
 
 <style scoped>
+.modal-btn {
+  width: 45%;
+  height: 50%;
+  border-radius: 5px;
+  border: none;
+  margin-left: 10px;
+  font-size: 90%;
+  cursor: pointer;
+  color: white;
+}
+
+.modal-share {
+    background: var(--add-button-color);
+}
+
+.modal-share:hover {
+    background: var(--add-button-color-hover);
+}
+
 .add-spending-btn {
     width: 17em;
     height: 20%;
@@ -269,5 +307,10 @@ span {
     background-position: center;
     background-repeat: no-repeat;
     background-size: 20%;
+    cursor: pointer;
+}
+
+.add-wallet:hover {
+    background-color: var(--light-general-color);
 }
 </style>

@@ -10,10 +10,12 @@ class WalletSerializer(serializers.ModelSerializer):
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
+        model = Category
         fields = '__all__'
 
 
 class ConsumptionSerializer(serializers.ModelSerializer):
     class Meta:
+        modal = Consumption
         fields = '__all__'
         read_only = ('date', )
