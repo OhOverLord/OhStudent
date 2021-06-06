@@ -16,6 +16,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ConsumptionSerializer(serializers.ModelSerializer):
     class Meta:
-        modal = Consumption
+        model = Consumption
         fields = '__all__'
         read_only = ('date', )

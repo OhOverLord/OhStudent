@@ -25,3 +25,4 @@ class Consumption(models.Model):
     title = models.CharField(max_length=100)
     description = models.CharField(blank=True, max_length=100)
     money = models.PositiveIntegerField(default=0)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='spendings')

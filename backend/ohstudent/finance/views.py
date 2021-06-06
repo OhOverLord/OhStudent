@@ -92,3 +92,34 @@ class CategoryListView(APIView):
             serializer = self.serializer_class(categories, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class ConsumptionCreateAPIView(CreateAPIView):
+    serializer_class = ConsumptionSerializer
+    queryset = Consumption.objects.all()
+
+
+class ConsumptionUpdateView(UpdateAPIView):
+    queryset = Consumption.objects.all()
+    serializer_class = ConsumptionSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class ConsumptionDeleteView(DestroyAPIView):
+    queryset = Consumption.objects.all()
+    serializer_class = ConsumptionSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+
+class ConsumptionListView(APIView):
+    serializer_class = ConsumptionSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        category_pk = request.data.pop('category', None)
+        if category_pk is not None:
+            category = get_object_or_404(Category, pk=category_pk)
+            consumptions = Consumption.objects.filter(category=category)
+            serializer = self.serializer_class(consumptions, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
