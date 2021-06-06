@@ -137,7 +137,6 @@ input {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    padding-top: 40px;
     overflow: auto;
 }
 
@@ -150,6 +149,7 @@ input {
     align-items: flex-end;
     justify-content: space-between;
     padding: 10px;
+    margin-bottom: 10px;
 }
 
 .spending-container {
@@ -161,7 +161,7 @@ input {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 }
 
 span {
