@@ -3,9 +3,9 @@ from account.models import User
 
 
 CURRENCIES = (
-    ('rubles', 'rubles'),
-    ('dollars', 'dollars'),
-    ('euros', 'eruros')
+    ('rubles', '₽'),
+    ('dollars', '$'),
+    ('euros', '€')
 )
 
 class Wallet(models.Model):
