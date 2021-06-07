@@ -14,6 +14,9 @@ class Wallet(models.Model):
     description = models.CharField(blank=True, max_length=100)
     currency = models.CharField(max_length=100, choices=CURRENCIES, default='rubles')
 
+    def __str__(self):
+        return self.description
+
 
 class Category(models.Model):
     title = models.CharField(max_length=100)

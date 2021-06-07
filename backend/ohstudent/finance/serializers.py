@@ -38,6 +38,6 @@ class ConsumptionSerializer(serializers.ModelSerializer):
 
 
 class ResultSerializer(serializers.Serializer):
-   rubles = serializers.IntegerField(allow_null=True)
-   dollars = serializers.IntegerField(allow_null=True)
-   euros = serializers.IntegerField(allow_null=True)
+   rubles = serializers.CharField(allow_null=True, allow_blank=True)
+   dollars = serializers.CharField(allow_null=True, allow_blank=True)
+   euros = serializers.CharField(allow_null=True, allow_blank=True)

@@ -72,11 +72,11 @@ class WalletResultAPIView(APIView):
         rubles = Wallet.objects.filter(currency="rubles", user__pk=request.user.pk).aggregate(Sum('money'))
         dollars = Wallet.objects.filter(currency="dollars", user__pk=request.user.pk).aggregate(Sum('money'))
         euros = Wallet.objects.filter(currency="euros", user__pk=request.user.pk).aggregate(Sum('money'))
-        print(euros["money__sum"])
+        data = {}
         data = {
-            "rubles": rubles["money__sum"],
-            "dollars": dollars["money__sum"],
-            "euros": euros["money__sum"]
+            "rubles": None if rubles["money__sum"] is None else f'{rubles["money__sum"]}₽',
+            "dollars": None if dollars["money__sum"] is None else f'{dollars["money__sum"]}$',
+            "euros": None if euros["money__sum"] is None else f'{euros["money__sum"]}€',
         }
         serializer = self.serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
@@ -117,6 +117,12 @@ class CategoryListView(APIView):
 class ConsumptionCreateAPIView(CreateAPIView):
     serializer_class = ConsumptionSerializer
     queryset = Consumption.objects.all()
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ConsumptionUpdateView(UpdateAPIView):
