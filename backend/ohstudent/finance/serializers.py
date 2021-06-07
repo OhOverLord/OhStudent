@@ -35,3 +35,9 @@ class ConsumptionSerializer(serializers.ModelSerializer):
         model = Consumption
         fields = '__all__'
         read_only = ('date', )
+
+
+class ResultSerializer(serializers.Serializer):
+   rubles = serializers.IntegerField(allow_null=True)
+   dollars = serializers.IntegerField(allow_null=True)
+   euros = serializers.IntegerField(allow_null=True)

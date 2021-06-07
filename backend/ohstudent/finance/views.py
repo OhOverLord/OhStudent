@@ -1,5 +1,5 @@
 from django.http import Http404
-from rest_framework import permissions
+from rest_framework import permissions, serializers
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (
@@ -11,7 +11,8 @@ from rest_framework.generics import (
 )
 from rest_framework.views import APIView
 from .models import Wallet, Category, Consumption
-from .serializers import WalletSerializer, CategorySerializer, ConsumptionSerializer
+from .serializers import ResultSerializer, WalletSerializer, CategorySerializer, ConsumptionSerializer
+from django.db.models import Sum
 
 
 class WalletCreateAPIView(APIView):
@@ -61,6 +62,25 @@ class WalletDeleteAPIView(APIView):
         wallet = get_object_or_404(Wallet, pk=pk, user__id=request.user.pk)
         wallet.delete()
         return Response(status=status.HTTP_200_OK)
+
+
+class WalletResultAPIView(APIView):
+    serializer_class = ResultSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get(self, request):
+        rubles = Wallet.objects.filter(currency="rubles", user__pk=request.user.pk).aggregate(Sum('money'))
+        dollars = Wallet.objects.filter(currency="dollars", user__pk=request.user.pk).aggregate(Sum('money'))
+        euros = Wallet.objects.filter(currency="euros", user__pk=request.user.pk).aggregate(Sum('money'))
+        print(euros["money__sum"])
+        data = {
+            "rubles": rubles["money__sum"],
+            "dollars": dollars["money__sum"],
+            "euros": euros["money__sum"]
+        }
+        serializer = self.serializer_class(data=data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
 
 
 class CategoryCreateAPIView(CreateAPIView):

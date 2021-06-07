@@ -8,6 +8,7 @@ urlpatterns = [
     path('wallet-list/', WalletListAPIView.as_view(), name='wallet-list'),
     path('wallet-update/', WalletUpdateAPIView.as_view(), name='wallet-update'),
     path('wallet-delete/', WalletDeleteAPIView.as_view(), name='wallet-delete'),
+    path('wallets-result/', WalletResultAPIView.as_view(), name='wallets-result'),
 
     path('category-create/', CategoryCreateAPIView.as_view(), name='category-create'),
     path('category-list/', CategoryListView.as_view(), name='category-list'),
