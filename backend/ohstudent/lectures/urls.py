@@ -9,5 +9,9 @@ urlpatterns = [
     path('update/', LectureUpdateView.as_view(), name='lecture-update'),
     path('share/', LectureShareView.as_view(), name='lecture-share'),
     path('lectures-list/', LecuresListView.as_view(), name='lectures-list'),
-    path('public-lecture-detail/', PublicLectureDetailView.as_view(), name='public-lecture-detail')
+    path('public-lecture-detail/', PublicLectureDetailView.as_view(), name='public-lecture-detail'),
+
+    path('folder-create/', FolderCreateAPIView.as_view(), name='folder-create'),
+    path('folder-list/', FolderListAPIView.as_view(), name='folder-create'),
+    path('folder-update/', FolderUpdateAPIView.as_view(), name='folder-update')
 ]

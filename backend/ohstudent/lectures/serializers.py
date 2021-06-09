@@ -1,5 +1,6 @@
+from django.db.models import fields
 from rest_framework import serializers
-from .models import Lecture
+from .models import Lecture, Folder
 from account.models import User
 
 
@@ -15,6 +16,12 @@ class LectureSerializer(serializers.ModelSerializer):
         model = Lecture
         fields = '__all__'
         read_only_fields = ('created_at', 'status', 'absolute_url', 'updated_at')
+
+
+class FolderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Folder
+        fields = '__all__'
 
 
 class LectureDetailSerializer(serializers.ModelSerializer):

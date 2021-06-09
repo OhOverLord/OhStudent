@@ -8,9 +8,9 @@ from rest_framework.generics import (
 )
 from rest_framework.views import APIView
 
-from .models import Lecture
+from .models import Folder, Lecture
 from account.models import User
-from .serializers import LectureSerializer, LectureDetailSerializer
+from .serializers import FolderSerializer, LectureSerializer, LectureDetailSerializer
 
 
 class LectureCreateAPIView(APIView):
@@ -22,7 +22,6 @@ class LectureCreateAPIView(APIView):
         request_data['user'] = request.user.pk
         serializer = self.serializer_class(data=request_data)
         serializer.is_valid(raise_exception=True)
-        print(serializer.errors)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -94,3 +93,39 @@ class PublicLectureDetailView(APIView):
         lecture = get_object_or_404(Lecture, pk=pk, status="public")
         serializer = self.serializer_class(lecture)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class FolderCreateAPIView(APIView):
+    serializer_class = FolderSerializer
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def post(self, request):
+        request_data = request.data
+        request_data['user'] = request.user.pk
+        serializer = self.serializer_class(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class FolderListAPIView(ListAPIView):
+    serializer_class = FolderSerializer
+    queryset = Folder.objects.all()
+    permission_classes = (permissions.IsAuthenticated, )
+
+    def get_queryset(self):
+        return Folder.objects.filter(user__pk=self.request.user.pk)
+
+
+class FolderUpdateAPIView(APIView):
+    def update(self, request):
+        pk = request.data.pop('id', None)
+        if pk is not None:
+            folder = get_object_or_404(Folder, pk=pk, user__id=request.user.pk)
+            serializer = self.serializer_class(
+                folder, data=request.data, partial=True
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
