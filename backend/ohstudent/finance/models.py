@@ -16,11 +16,17 @@ class Wallet(models.Model):
 
     def __str__(self):
         return self.description
+    
+    class Meta:
+        ordering = ['description']
 
 
 class Category(models.Model):
     title = models.CharField(max_length=100)
     wallet = models.ForeignKey(Wallet, on_delete=models.CASCADE, related_name='categories')
+
+    def __str__(self):
+        return self.title
 
 
 class Consumption(models.Model):
@@ -29,3 +35,6 @@ class Consumption(models.Model):
     description = models.CharField(blank=True, max_length=100)
     money = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='spendings')
+
+    def __str__(self):
+        return self.title

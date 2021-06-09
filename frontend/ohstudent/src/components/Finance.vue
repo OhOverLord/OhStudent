@@ -2,16 +2,16 @@
     <div class="container">
         <p class="title">Учёт финансов:</p>
         <div class="wallets-container">
-            <div class="wallet">
+            <div class="wallet" v-if="wallets_sum.rubles != null || wallets_sum.dollars != null || wallets_sum.euros != null">
                 <span class="balance" v-if="wallets_sum.rubles != null">{{wallets_sum.rubles}}</span>
                 <span class="balance" v-if="wallets_sum.dollars != null">{{wallets_sum.dollars}}</span>
                 <span class="balance" v-if="wallets_sum.euros != null">{{wallets_sum.euros}}</span>
                 <span class="balance-description">В наличии по всем кошелькам</span>
             </div>
-            <div class="wallet" v-for="(wallet, i) in wallets" :key="i" @click="chooseWallet(wallet.id)">
+            <div class="wallet" v-for="(wallet, i) in wallets" :key="i" @click="chooseWallet(wallet, $event)">
                 <span class="balance">{{wallet.money}}{{wallet.currency}}</span>
                 <span class="balance-description">{{wallet.description}}</span>
-                <button class="edit-wallet-btn" @click="showWalletModel(wallet, i)">Редактировать</button>
+                <button class="edit-wallet-btn" @click="showWalletModel(wallet, i, $event)">Редактировать</button>
             </div>
             <div v-if="wallets.length < 3" class="wallet add-wallet" @click="showAddWalletModal = true">
             </div>
@@ -35,13 +35,13 @@
                             <span class="date">{{spending.date.split('T')[0]}}</span>
                             <span class="description">{{spending.title}}</span>
                         </div>
-                        <span class="summ">{{spending.money}}</span>
+                        <span class="summ">{{spending.money}}{{currency}}</span>
                     </div>
                 </div>
                 <div class="add-spending">
                     <div class="inputs-container">
                         <textarea type="text" placeholder="Описание..." class="spending-descrtiption" v-model="spendingTitle"></textarea>
-                        <input type="number" class="spending-summ" min="0" v-model="spendingMoney">
+                        <input type="number" class="spending-summ" min="0" :max='max_sum' v-model="spendingMoney">
                     </div>
                     <button class="add-spending-btn" @click="addSpending">Добавить</button>
                 </div>
@@ -127,6 +127,7 @@ export default {
             spendings: [],
             spendingTitle: '',
             spendingMoney: '',
+            max_sum: 0,
         }
     },
     components: {
@@ -142,6 +143,16 @@ export default {
             {
                 alert("Баланс не может быть отрицательным... :)")
                 this.money = 0
+            }
+        },
+        spendingMoney() {
+            if(this.spendingMoney > this.max_sum)
+            {
+                alert("Столько деняк нету! ;)")
+                this.spendingMoney = 0
+            }
+            if(this.spendingMoney < 0) {
+                this.spendingMoney = 0
             }
         }
     },
@@ -166,8 +177,10 @@ export default {
             else
                 alert("Заполните описание кошелька")
         },
-        showWalletModel(wallet, i) {
+        showWalletModel(wallet, i, event) {
+            event.stopPropagation()
             this.walletModal = true
+            this.visible = false
             this.money = wallet.money
             this.description = wallet.description
             this.currency = wallet.currency
@@ -224,11 +237,14 @@ export default {
                 console.warn(err.response)
             })
         },
-        chooseWallet(id) {
+        chooseWallet(wallet, event) {
+            event.stopPropagation()
             this.visible = true
-            this.getCategories(id)
-            this.choosenWallet = id
+            this.getCategories(wallet.id)
+            this.choosenWallet = wallet.id
             this.spendingFormVisible = false
+            this.max_sum = wallet.money
+            this.currency = wallet.currency
         },
         getCategories(wallet) {
             jwtInterceptor.post('http://127.0.0.1:8000/finance/category-list/', {
@@ -277,6 +293,8 @@ export default {
                 this.spendings.push(response.data)
                 this.spendingTitle = ''
                 this.spendingMoney = ''
+                this.getWallets()
+                this.max_sum = response.data.balance
             })
             .catch(err => { 
                 console.warn(err.response)

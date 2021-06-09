@@ -122,7 +122,17 @@ class ConsumptionCreateAPIView(CreateAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        context = {}
+        context.update(serializer.data)
+        category = get_object_or_404(Category, spendings__id=serializer.data["id"])
+        wallet = get_object_or_404(Wallet, categories__id=category.pk)
+        if wallet.money < serializer.validated_data["money"]:
+            return Response("Стоимость не может привышать количество денег в кошельке",status=status.HTTP_400_BAD_REQUEST)
+        else:
+            wallet.money -= serializer.validated_data["money"]
+            wallet.save()
+            context.update({'balance': wallet.money})
+        return Response(context, status=status.HTTP_201_CREATED)
 
 
 class ConsumptionUpdateView(UpdateAPIView):
