@@ -1,3 +1,4 @@
+from builtins import print
 from django.http import Http404
 from rest_framework import permissions
 from rest_framework.response import Response
@@ -118,6 +119,9 @@ class FolderListAPIView(ListAPIView):
 
 
 class FolderUpdateAPIView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    serializer_class = FolderSerializer
+
     def update(self, request):
         pk = request.data.pop('id', None)
         if pk is not None:
@@ -128,4 +132,18 @@ class FolderUpdateAPIView(APIView):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class FolderDeleteAPIView(APIView):
+    permission_classes = (permissions.IsAuthenticated, )
+    serializer_class = FolderSerializer
+
+    def post(self, request):
+        pk = request.data.pop('id', None)
+        print(pk)
+        if pk is not None:
+            folder = get_object_or_404(Folder, pk=pk, user__id=request.user.pk)
+            folder.delete()
+            return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_404_NOT_FOUND)

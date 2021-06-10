@@ -13,5 +13,6 @@ urlpatterns = [
 
     path('folder-create/', FolderCreateAPIView.as_view(), name='folder-create'),
     path('folder-list/', FolderListAPIView.as_view(), name='folder-create'),
-    path('folder-update/', FolderUpdateAPIView.as_view(), name='folder-update')
+    path('folder-update/', FolderUpdateAPIView.as_view(), name='folder-update'),
+    path('folder-delete/', FolderDeleteAPIView.as_view(), name='folder-delete')
 ]
