@@ -122,7 +122,7 @@ class FolderUpdateAPIView(APIView):
     permission_classes = (permissions.IsAuthenticated, )
     serializer_class = FolderSerializer
 
-    def update(self, request):
+    def post(self, request):
         pk = request.data.pop('id', None)
         if pk is not None:
             folder = get_object_or_404(Folder, pk=pk, user__id=request.user.pk)

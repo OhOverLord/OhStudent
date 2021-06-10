@@ -275,8 +275,16 @@ export default {
                 id: this.folder.id,
                 title: this.folder_title
             }).then(response => {
-                this.lectures = response.data
-                console.log(this.lectures)
+                let index;
+                for(let i=0; i<this.folders_list.length; i++)
+                {
+                    if( this.folder.id === this.folders_list[i].id )
+                    {
+                        index = i
+                    }
+                }
+                this.editFolderModal = false
+                this.folders_list[index] = response.data
             })
             .catch(err => { 
                 console.warn(err.response)
