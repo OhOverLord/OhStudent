@@ -4,23 +4,49 @@
             <div class="search-container">
                 <input type="text" class="search" v-model="search">
             </div>
-            <div class="lectures-list-container">
-                <div class="lecture-tile new-lecture" @click="newLecture">
-                    <div class="new-lecture-img"></div>
+            <div class="lectures-and-folders-container" v-if="!folders">
+                <div class="folders-container" @mouseover="showFolders" id="folder">
+                    <div class="folder-icon"></div>
                 </div>
-                <div class="lecture-tile" v-for="(lecture, i) in filteredLectures" :key="lecture.id" @click="chooseLecture(lecture, i)">
-                    <div class="lecture-tile-header">
-                        <span class="tile-title">{{lecture.title}}</span>
-                        <span class="tile-date">{{lecture.created_at.split('T')[0]}}</span>
+                <div class="lectures-list-container" id="lectures-list-container">
+                    <div class="lecture-tile new-lecture" @click="newLecture">
+                        <div class="new-lecture-img"></div>
                     </div>
-                    <div class="lecture-tile-body">
-                        <span class="lecture-tile-description" v-if="lecture.description.length < 40">
-                            {{lecture.description.replace(/<\/?[^>]+(>|$)/g, "")}}
-                        </span>
-                        <span class="lecture-tile-description" v-else>
-                            {{lecture.description.substr(0, 40).replace(/<\/?[^>]+(>|$)/g, "")}}...
-                        </span>
+                    <div class="lecture-tile" v-for="(lecture, i) in filteredLectures" :key="lecture.id" @click="chooseLecture(lecture, i)">
+                        <div class="lecture-tile-header">
+                            <span class="tile-title">{{lecture.title}}</span>
+                            <span class="tile-date">{{lecture.created_at.split('T')[0]}}</span>
+                        </div>
+                        <div class="lecture-tile-body">
+                            <span class="lecture-tile-description" v-if="lecture.description.length < 40">
+                                {{lecture.description.replace(/<\/?[^>]+(>|$)/g, "")}}
+                            </span>
+                            <span class="lecture-tile-description" v-else>
+                                {{lecture.description.substr(0, 40).replace(/<\/?[^>]+(>|$)/g, "")}}...
+                            </span>
+                        </div>
                     </div>
+                </div>
+            </div>
+            <div v-else class="lectures-and-folders-container">
+                <div class="folders-list">
+                    <div class="folder-tile" @click="addFolderModal">
+                        <div class="folder-tile-icon add-icon"></div>
+                        <div class="folder-tile-title">Добавить папку</div>
+                    </div>
+
+                    <div class="folder-tile all-lectures-folder-tile">
+                        <div class="folder-tile-icon"></div>
+                        <div class="folder-tile-title">Все лекции</div>
+                    </div>
+
+                    <div class="folder-tile" v-for="folder in folders_list" :key="folder.id" @dblclick="chooseFolder(folder)">
+                        <div class="folder-tile-icon"></div>
+                        <div class="folder-tile-title">{{folder.title}}</div>
+                    </div>
+                </div>
+                <div class="lecture-icon-container" @mouseover="showLectures">
+                    <div class="lecture-icon"></div>
                 </div>
             </div>
         </div>
@@ -38,6 +64,15 @@
                 <ckeditor class="lecture-input" v-model="editorData" :config="editorConfig"></ckeditor>
             </div>
         </div>
+
+        <!-- <div class="folder-container" :class="{'visible': !visible}">
+            <div class="folder-header">
+                <input type="text" class="folder-title" v-model="folder_title">
+            </div>
+            <div class="folder-body">
+
+            </div>
+        </div> -->
 
         <modal v-if="showDeleteModal" @close="showDeleteModal = false">
             <h3 slot="header">Вы точно хотите удалить?</h3>
@@ -63,6 +98,29 @@
             <div class="modal-buttons" slot="footer">
                 <button class="modal-share modal-btn" @click="share">Поделиться</button>
                 <button class="close modal-btn" @click="showShareModal = false">Закрыть</button>
+            </div>
+        </modal>
+
+        <modal v-if="editFolderModal" @close="editFolderModal = false">
+            <h3 slot="header">Папка:</h3>
+            <div slot="body">
+                <input type="text" class="share-link" v-model="folder_title">
+            </div>
+            <div class="modal-buttons" slot="footer">
+                <button class="modal-share modal-btn" @click="editFolder">Изменить</button>
+                <button class="modal-delete modal-btn" @click="deleteFolder">Удалить</button>
+                <button class="close modal-btn" @click="editFolderModal = false">Закрыть</button>
+            </div>
+        </modal>
+
+        <modal v-if="showAddFolderModal" @close="showAddFolderModal = false">
+            <h3 slot="header">Новая папка:</h3>
+            <div slot="body">
+                <input type="text" class="share-link" v-model="folder_title">
+            </div>
+            <div class="modal-buttons" slot="footer">
+                <button class="modal-share modal-btn" @click="addFolder">Добавить папку</button>
+                <button class="close modal-btn" @click="showAddFolderModal = false">Закрыть</button>
             </div>
         </modal>
     </div>
@@ -97,6 +155,12 @@ export default {
             showShareModal: false,
             link: '',
             search: '',
+            folders: false,
+            folders_list: [],
+            folder_title: '',
+            folder: {},
+            editFolderModal: false,
+            showAddFolderModal: false,
         };
     },
     methods: {
@@ -109,6 +173,14 @@ export default {
             this.lecture = lecture
             this.index = index
             console.log(this.lecture)
+        },
+        get_folders() {
+            jwtInterceptor.get('http://127.0.0.1:8000/lectures/folder-list/').then(response => {
+                this.folders_list = response.data
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
         },
         newLecture() {
             this.editorData = ''
@@ -185,16 +257,74 @@ export default {
         showShare() {
             this.showShareModal = true
             this.link = `http://localhost:8080${this.lecture.absolute_url}`
+        },
+        showFolders() {
+            this.folders = true
+        },
+        showLectures() {
+            this.folders = false
+        },
+        chooseFolder(folder) {
+            this.folder = folder
+            this.visible = true
+            this.folder_title = this.folder.title
+            this.editFolderModal = true
+        },
+        editFolder() {
+            jwtInterceptor.post('http://127.0.0.1:8000/lectures/folder-update/', {
+                id: this.folder.id,
+                title: this.folder_title
+            }).then(response => {
+                this.lectures = response.data
+                console.log(this.lectures)
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
+        },
+        deleteFolder() {
+            jwtInterceptor.post('http://127.0.0.1:8000/lectures/folder-delete/', {
+                id: this.folder.id,
+            }).then(response => {
+                let index;
+                for(let i=0; i<this.folders_list.length; i++)
+                {
+                    if( this.folder.id === this.folders_list[i].id )
+                    {
+                        index = i
+                    }
+                }
+                this.editFolderModal = false
+                this.folders_list.splice(index, 1)
+            })
+            .catch(err => { 
+                console.warn(err)
+            })
+        },
+        addFolderModal() {
+            this.showAddFolderModal = true
+        },
+        addFolder() {
+            jwtInterceptor.post('http://127.0.0.1:8000/lectures/folder-create/', {
+                title: this.folder_title
+            }).then(response => {
+                this.folders_list.push(response.data)
+                this.showAddFolderModal = false
+                this.folder_title = ''
+            })
+            .catch(err => { 
+                console.warn(err)
+            })
         }
     },
     mounted() {
         jwtInterceptor.get('http://127.0.0.1:8000/lectures/lectures-list/').then(response => {
             this.lectures = response.data
-            console.log(this.lectures)
         })
         .catch(err => { 
             console.warn(err.response)
         })
+        this.get_folders()
     },
     components: {
         ClipLoader,
@@ -225,12 +355,111 @@ export default {
 </script>
 
 <style scoped>
+.modal-delete {
+    background-color: var(--button-delete-color);
+    margin-bottom: 10px;
+}
+/* .folder-container {
+    width: 55em;
+    height: 39em;
+    border-bottom: none;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.folder-body {
+    width: 100%;
+    height: 100%;
+    background-color: gray;
+} */
+
+.all-lectures-folder-tile {
+    background-color: var(--light-general-color) !important;
+}
+
+.folder-tile-title {
+    margin-left: 10px;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.folder-tile-icon {
+    background-image: url('~@/assets/folder.png');
+    width: 28px;
+    height: 27px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.add-icon {
+    background-image: url('~@/assets/add-folder.png');
+}
+
+.folder-tile {
+    width: 25em;
+    height: 2em;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border: 3px solid var(--general-color);
+    background-color: white;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+.folder-tile:hover {
+    box-shadow: 8px 4px 16px 5px rgba(0,0,0,0.3);
+}
+
+.folders-list {
+    height: 100%;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: auto;
+}
+
+.lecture-icon-container {
+    height: 100%;
+    width: 10%;
+    border-left: 2px solid var(--general-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.lecture-icon {
+    background-image: url('~@/assets/document.png');
+    width: 65%;
+    height: 10%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.folder-icon {
+    background-image: url('~@/assets/folder.png');
+    width: 65%;
+    height: 10%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
 .share-link {
     width: 100%;
 }
 
 .lecture-title {
     width: 30%;
+}
+
+.folder-title {
+    width: 30%;
+    font-size: 100%;
 }
 
 .buttons-container {
@@ -298,10 +527,14 @@ export default {
   height: 50%;
   border-radius: 5px;
   border: none;
-  margin-left: 10px;
   font-size: 90%;
   cursor: pointer;
   color: white;
+  margin-left: 10px;
+}
+
+.close {
+    background-color: var(--button-color);
 }
 
 .new-lecture-img {
@@ -311,10 +544,6 @@ export default {
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-}
-
-.visible {
-    visibility: hidden;
 }
 
 .share-button {
@@ -367,15 +596,64 @@ export default {
 }
 
 .lectures-list-container {
-    width: 100%;
+    width: 90%;
     height: 100%;
-    background: var(--other-color);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
     overflow: auto;
 }
+
+/* .lectures-animation {
+    overflow: hidden;
+    animation-duration: 3s;
+    animation-name: expansion;
+    animation-timing-function: linear;
+} */
+
+.lectures-and-folders-container {
+    width: 100%;
+    height: 90%;
+    background: var(--other-color);
+    display: flex;
+}
+
+.folders-container {
+    width: 10%;
+    height: 100%;
+    border-right: 2px solid var(--general-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* .folder-animation {
+    animation-duration: 3s;
+    animation-name: expansion;
+    animation-timing-function: linear;
+} */
+
+/* @keyframes expansion {
+  from {
+    width: 10%;
+  }
+
+  to {
+    width: 200%;
+  }
+}
+
+@keyframes compression {
+  from {
+    width: 90%;
+  }
+
+  to {
+    width: 10%;
+  }
+} */
 
 .lecture-tile {
     width: 90%;
@@ -425,9 +703,22 @@ export default {
     box-sizing: border-box;
 }
 
-.lecture-body {
+/* .folder-header {
+    width: 100%;
+    height: 3.5em;
+    border: 3px solid var(--general-color);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+} */
+
+/* .lecture-body {
     width: 100%;
     height: 100%;
-}
+} */
 
+.visible {
+    display: none;
+}
 </style>
