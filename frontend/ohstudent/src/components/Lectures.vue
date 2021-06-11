@@ -35,12 +35,15 @@
                         <div class="folder-tile-title">Добавить папку</div>
                     </div>
 
-                    <div class="folder-tile all-lectures-folder-tile">
+                    <div class="folder-tile all-lectures-folder-tile" @click="allLectures($event)">
                         <div class="folder-tile-icon"></div>
                         <div class="folder-tile-title">Все лекции</div>
                     </div>
 
-                    <div class="folder-tile" v-for="folder in folders_list" :key="folder.id" @dblclick="chooseFolder(folder)">
+                    <div class="folder-tile" v-for="folder in folders_list" :key="folder.id" 
+                    @contextmenu.prevent="chooseFolderToEdit(folder)"
+                    @click="chooseFolder(folder, $event)"
+                    >
                         <div class="folder-tile-icon"></div>
                         <div class="folder-tile-title">{{folder.title}}</div>
                     </div>
@@ -196,7 +199,8 @@ export default {
                 {
                     jwtInterceptor.post('http://127.0.0.1:8000/lectures/create/', {
                         title: this.lectureTitle,
-                        description: this.editorData
+                        description: this.editorData,
+                        folder: this.folder.id
                     }).then(response => {
                         this.lectures.unshift(response.data)
                         this.choose = true
@@ -219,7 +223,6 @@ export default {
                 description: this.editorData,
                 id: this.lecture.id
             }).then(response => {
-                console.log(response)
                 this.lecture.title = this.lectureTitle
                 this.lecture.description = this.editorData
             })
@@ -264,11 +267,23 @@ export default {
         showLectures() {
             this.folders = false
         },
-        chooseFolder(folder) {
+        chooseFolderToEdit(folder) {
             this.folder = folder
             this.visible = true
             this.folder_title = this.folder.title
             this.editFolderModal = true
+        },
+        chooseFolder(folder, event) {
+            event.stopPropagation()
+            this.folder = folder
+            this.getLectures(folder.id)
+            this.folders = false
+            event.target.style.backgroundColor = "black";
+            console.log(event.target)
+        },
+        allLectures(event) {
+            this.getLectures()
+            this.folders = false
         },
         editFolder() {
             jwtInterceptor.post('http://127.0.0.1:8000/lectures/folder-update/', {
@@ -323,15 +338,20 @@ export default {
             .catch(err => { 
                 console.warn(err)
             })
+        },
+        getLectures(folder = null) {
+            jwtInterceptor.post('http://127.0.0.1:8000/lectures/lectures-list/', {
+                folder:folder
+            }).then(response => {
+                this.lectures = response.data
+            })
+            .catch(err => { 
+                console.warn(err.response)
+            })
         }
     },
     mounted() {
-        jwtInterceptor.get('http://127.0.0.1:8000/lectures/lectures-list/').then(response => {
-            this.lectures = response.data
-        })
-        .catch(err => { 
-            console.warn(err.response)
-        })
+        this.getLectures()
         this.get_folders()
     },
     components: {
@@ -362,7 +382,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .modal-delete {
     background-color: var(--button-delete-color);
     margin-bottom: 10px;

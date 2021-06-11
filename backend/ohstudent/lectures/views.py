@@ -66,12 +66,23 @@ class LectureDeleteView(APIView):
         return Response(status=status.HTTP_200_OK)
 
 
-class LecuresListView(ListAPIView):
+class LecuresListView(APIView):
     serializer_class = LectureSerializer
     permission_classes = (permissions.IsAuthenticated, )
 
-    def get_queryset(self):
-        return Lecture.objects.filter(user__pk=self.request.user.pk)
+    def post(self, request):
+        try:
+            folder_pk = request.data.pop('folder', None)
+            user_pk = request.user.pk
+            if folder_pk is not None:
+                lectures = Lecture.objects.filter(user__pk=user_pk, folder__pk=folder_pk)
+                serializer = self.serializer_class(lectures, many=True)
+            else:
+                lectures = Lecture.objects.filter(user__pk=user_pk)
+                serializer = self.serializer_class(lectures, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 class LectureShareView(APIView):
     serializer_class = LectureSerializer
