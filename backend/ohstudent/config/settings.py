@@ -27,7 +27,8 @@ INSTALLED_APPS = [
     'account',
     'chat',
     'lectures',
-    'finance'
+    'finance',
+    'diary'
 ]
 
 MIDDLEWARE = [
