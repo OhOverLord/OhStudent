@@ -19,14 +19,19 @@
                     </tr>
                 </thead>
                 <tr v-for="week in calendar()" :key="week.day">             
-                    <td class="day" v-for="(day, index) in week" :class="{'weekend-day': day.weekend, 'current-day': day.current}" :key="index" @click="openTaskWindow(day)"> {{ day.index }} </td>
+                    <td class="day" v-for="(day, index) in week" :class="{'weekend-day': day.weekend, 'current-day': day.current}" :key="index" @click="openTaskWindow(day, $event)"> 
+                        <div class="day-index">{{day.index}}</div>
+                        <div class="tasks-preview-list">
+                            <div class="task-preview" :class="{'current-day-task': day.current}"></div>
+                        </div>
+                    </td>
                 </tr>  
             </table>
         </div>
         <div class="tasks-tile" v-if="tasksWindow">
             <div class="tasks-tile-header">
                 <div class="calendar-icon"></div>
-                <div>{{choosenDate}}</div>
+                <div>{{choosenDateTitle}}</div>
             </div>
             <div class="task-tile-body" v-if="!showAddTask">
                 <div class="task">
@@ -68,7 +73,8 @@ export default {
             date: new Date(),
             tasksWindow: false,
             showAddTask: false,
-            choosenDate: ''
+            choosenDateTitle: '',
+            chooseDate: '',
         }
     },
     methods: {
@@ -77,13 +83,15 @@ export default {
         },
         closeTasksWindow() {
             this.tasksWindow = false
+            this.chooseDate.classList.toggle('choosen')
         },
-        openTaskWindow(day) {
+        openTaskWindow(day, event) {
             if(!day)
                 return
             this.tasksWindow = true
-            console.log(day)
-            this.choosenDate = `${day.index} ${this.monthes[this.month]} ${this.year}`
+            this.choosenDateTitle = `${day.index} ${this.monthes[this.month]} ${this.year}`
+            this.chooseDate = event.target
+            this.chooseDate.classList.toggle('choosen')
         },
         calendar() {
             let days = [];
@@ -135,6 +143,33 @@ export default {
 </script>
 
 <style scoped>
+.day-index {
+    height: 50%;
+    width: 100%;
+}
+
+.task-preview {
+    width: 10px;
+    height: 10px;
+    background-color: var(--general-color);
+    border-radius: 10px;
+    margin-left: 3px;
+}
+
+.current-day-task {
+    background-color: white;
+}
+
+.tasks-preview-list {
+    height: 50%;
+    width: 100%;
+    display: flex;
+}
+
+.choosen {
+    background-color: var(--other-color);
+}
+
 .inputs-container {
     width: 70%;
     margin-top: 30px;
@@ -296,7 +331,7 @@ input {
     height: 100%;
     width: 10%;
     margin-right: 10px;
-    background-image: url('~@/assets/less-than.png');
+    background-image: url('~@/assets/less.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
@@ -307,7 +342,7 @@ input {
     height: 100%;
     width: 10%;
     margin-left: 10px;
-    background-image: url('~@/assets/greater-than.png');
+    background-image: url('~@/assets/greater.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
