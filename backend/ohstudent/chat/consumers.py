@@ -4,7 +4,8 @@ from channels.generic.websocket import WebsocketConsumer
 import json
 from .models import Message, Chat, Contact
 from .views import get_messages, get_user_contact, get_current_chat
-
+from account.models import User
+from django.db.models import F
 
 
 class ChatConsumer(WebsocketConsumer):
@@ -17,7 +18,6 @@ class ChatConsumer(WebsocketConsumer):
         self.send_message(content)
 
     def new_message(self, data):
-        print(data)
         user_contact = get_user_contact(data['from'])
         message = Message.objects.create(
             contact=user_contact,
@@ -45,9 +45,20 @@ class ChatConsumer(WebsocketConsumer):
             'timestamp': str(message.timestamp)
         }
 
+    def update_user_incr(self, user):
+        contact = get_user_contact(user['username'])
+        print(contact)
+        User.objects.filter(pk=contact.user.id).update(online=F('online') + 1)
+
+    def update_user_decr(self, user):
+        contact = get_user_contact(user['username'])
+        User.objects.filter(pk=contact.user.id).update(online=F('online') - 1)
+
     commands = {
         'fetch_messages': fetch_messages,
-        'new_message': new_message
+        'new_message': new_message,
+        'update_user_incr': update_user_incr,
+        'update_user_decr': update_user_decr
     }
 
     def connect(self):

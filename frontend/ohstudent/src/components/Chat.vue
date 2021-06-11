@@ -27,7 +27,7 @@
                 <!-- <div class="profile-image"></div> -->
                 <div class="person-info">
                     <span>{{interclutor_fio}}</span><br>
-                    <span class="status">Online</span>
+                    <span class="status">{{interclutor_status}}</span>
                 </div>
             </div>
             <div class="chat" id="chat">
@@ -57,6 +57,7 @@ export default {
       chatId: '',
       visible: true,
       interclutor_fio: '',
+      interclutor_status: '',
       first_name: localStorage.getItem('first_name'),
       last_name: localStorage.getItem('last_name'),
       search: '',
@@ -83,9 +84,15 @@ export default {
         jwtInterceptor.get(`http://127.0.0.1:8000/chat/${chatUrl}/`).then(response => {
             let participants = response.data.participants
             if (participants[0].user.first_name != this.first_name && participants[0].user.last_name != this.last_name)
+            {
                 this.interclutor_fio = participants[0].user.first_name + ' ' + participants[0].user.last_name
+                this.interclutor_status = participants[0].user.online == 0 ? "offline" : "online"
+            }
             else
+            {
                 this.interclutor_fio = participants[1].user.first_name + ' ' + participants[1].user.last_name
+                this.interclutor_status = participants[1].user.online == 0 ? "offline" : "online"
+            }
             this.visible = false
         })
         .catch(err => { 
@@ -115,6 +122,18 @@ export default {
             command: "fetch_messages",
             username: username,
             chatId: chatId
+        });
+    },
+    update_user_incr(username) {
+        this.sendMessage({
+            command: "update_user_incr",
+            username: username
+        });
+    },
+    update_user_decr(username) {
+        this.sendMessage({
+            command: "update_user_decr",
+            username: username
         });
     },
     newChatMessage(message) {
@@ -158,7 +177,7 @@ export default {
   mounted() {
     jwtInterceptor.get('http://127.0.0.1:8000/chat/').then(response => {
         this.chats = response.data
-        console.log(response.data)
+        this.update_user_incr(localStorage.getItem('username'))
     })
     .catch(err => { 
         console.warn(err.response)
@@ -168,6 +187,9 @@ export default {
         this.openChat(this.$route.params.id)
         console.log(this.$route.params.id)
     }
+  },
+  beforeDestroy() {
+    this.update_user_decr(localStorage.getItem('username'))
   },
   computed: {
       filteredChats(){
@@ -282,6 +304,7 @@ p {
     border: none;
     background: var(--other-color);
     border-radius: 8px;
+    padding-left: 8px;
 }
 
 .message-input-container {
