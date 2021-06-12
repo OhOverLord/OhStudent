@@ -18,11 +18,13 @@
                         <td class="days" v-for="d in day" :key="d">{{d}}</td>
                     </tr>
                 </thead>
-                <tr v-for="week in calendar()" :key="week.day">             
+                <tr v-for="week in calendar" :key="week.day">             
                     <td class="day" v-for="(day, index) in week" :class="{'weekend-day': day.weekend, 'current-day': day.current}" :key="index" @click="openTaskWindow(day, $event)"> 
                         <div class="day-index">{{day.index}}</div>
-                        <div class="tasks-preview-list">
-                            <div class="task-preview" :class="{'current-day-task': day.current}"></div>
+                        <div class="tasks-preview-list" v-if="day.tasks">
+                            <div v-for="(task, index) in day.tasks.slice(0, 3)" :key="index">
+                                <div v-if="task.status == 'process'" class="task-preview" :class="{'current-day-task': day.current}"></div>
+                            </div>
                         </div>
                     </td>
                 </tr>  
@@ -34,25 +36,29 @@
                 <div>{{choosenDateTitle}}</div>
             </div>
             <div class="task-tile-body" v-if="!showAddTask">
-                <div class="task">
-                    <div class="task-title-container">
-                        <span class="task-title">Работа</span>
-                        <span class="task-time">09.00 - 15.00</span>
+                <div class="task" v-for="(task, index) in day_index.tasks" :key="index">
+                    <div class="task-title-container" v-if="task.status == 'process'">
+                        <span class="task-title">{{task.title}}</span>
+                        <span class="task-time"><span v-if="task.time_from">{{task.time_from}} - </span><span v-if="task.time_to">{{task.time_to}}</span></span>
+                    </div>
+                    <div class="task-title-container task-title-container-done" v-else>
+                        <span class="task-title">{{task.title}}</span>
+                        <span class="task-time"><span v-if="task.time_from">{{task.time_from}} - </span><span v-if="task.time_to">{{task.time_to}}</span></span>
                     </div>
                     <div class="task-buttons">
-                        <div class="task-edit-btn task-btn"></div>
-                        <div class="task-done-btn task-btn"></div>
+                        <div class="task-edit-btn task-btn" @click="taskEdit(index)"></div>
+                        <div class="task-done-btn task-btn" @click="changeTaskStatus($event, index)"></div>
                     </div>
                 </div>
             </div>
             <div class="task-tile-add-body" v-else>
                 <div class="inputs-container">
                     <label for="add-task-title">Название задачи</label>
-                    <input type="text" class="add-task-title" name="add-task-title">
+                    <input type="text" class="add-task-title" name="add-task-title" v-model="taskTitle" required>
                     <label for="add-task-title">Время начала</label>
-                    <input type="text" class="add-task-time-from" name="add-task-time-from">
+                    <input type="text" class="add-task-time-from" name="add-task-time-from" v-model="taskTimeFrom">
                     <label for="add-task-title">Время окончания</label>
-                    <input type="text" class="add-task-time-to" name="add-task-time-to">
+                    <input type="text" class="add-task-time-to" name="add-task-time-to" v-model="taskTimeTo">
                 </div>
             </div>
             <button class="task-tile-button" @click="openAddTaskWindow">+ Добавить задачу</button>
@@ -62,6 +68,8 @@
 </template>
 
 <script>
+import jwtInterceptor from '@/jwtInterceptor'
+
 export default {
     data() {
         return {
@@ -75,24 +83,142 @@ export default {
             showAddTask: false,
             choosenDateTitle: '',
             chooseDate: '',
+            taskTitle: '',
+            taskTimeFrom: '',
+            taskTimeTo: '',
+            day_index: '',
+            tasks: [],
+            taskEditShow: false,
+            index: ''
         }
     },
     methods: {
-        openAddTaskWindow() {
+        taskEdit(index) {
+            this.taskEditShow = true
+            this.index = index
+            this.taskTitle = this.day_index.tasks[index].title
+            this.taskTimeFrom = this.day_index.tasks[index].time_from
+            this.taskTimeTo = this.day_index.tasks[index].time_to
             this.showAddTask = !this.showAddTask
+        },
+        openAddTaskWindow() {
+            if(this.taskEditShow) {
+                jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-update/`, {
+                    id: this.day_index.tasks[this.index].id,
+                    title: this.taskTitle,
+                    time_from: this.taskTimeFrom,
+                    time_to: this.taskTimeTo
+                }).then(response => {
+                    this.day_index.tasks[this.index] = response.data
+                    this.taskEditShow = false
+                    this.showAddTask = false
+                    this.taskTitle = ''
+                    this.taskTimeFrom = ''
+                    this.taskTimeTo = ''
+                })
+                .catch(err => { 
+                    console.warn(err)
+                })
+            }
+            else if(this.showAddTask && this.taskTitle != '') {
+                jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-create/`, {
+                    day: this.day_index.index,
+                    month: this.month,
+                    year: this.year,
+                    title: this.taskTitle,
+                    time_from: this.taskTimeFrom,
+                    time_to: this.taskTimeTo
+                }).then(response => {
+                    this.day_index.tasks.push(response.data)
+                    this.showAddTask = false
+                    this.taskTitle = ''
+                    this.taskTimeFrom = ''
+                    this.taskTimeTo = ''
+                })
+                .catch(err => { 
+                    console.warn(err)
+                })
+            }
+            else {
+                this.showAddTask = !this.showAddTask
+            }
+        },
+        changeTaskStatus(event, index) {
+            event.target.parentElement.parentElement.firstChild.classList.toggle('task-title-container-done')
+            if(this.day_index.tasks[index].status == 'process')
+                var status = 'completed'
+            else
+                var status = 'process'
+            jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-update/`, {
+                id: this.day_index.tasks[index].id,
+                status: status
+            }).then(response => {
+                this.day_index.tasks[index] = response.data
+            })
+            .catch(err => { 
+                console.warn(err)
+            })
         },
         closeTasksWindow() {
             this.tasksWindow = false
             this.chooseDate.classList.toggle('choosen')
+            this.taskEditShow = false
+            this.showAddTask = false
         },
         openTaskWindow(day, event) {
+            event.stopPropagation()
+            this.taskEditShow = false
+            this.showAddTask = false
+            if(this.chooseDate)
+            {
+                this.chooseDate.classList.remove('choosen')
+                this.tasksWindow = false
+                this.chooseDate = ''
+            }
             if(!day)
+                return
+            if(event.target.tagName == 'TD')
                 return
             this.tasksWindow = true
             this.choosenDateTitle = `${day.index} ${this.monthes[this.month]} ${this.year}`
-            this.chooseDate = event.target
+            this.day_index = day
+            this.chooseDate = event.target.parentElement
             this.chooseDate.classList.toggle('choosen')
         },
+        decrease() {
+            this.month--;
+            if (this.month < 0) {
+                this.month = 12;
+                this.month--;
+                this.year--;
+            }
+            this.getTaskListPreview()
+        },
+        increase() {
+            this.month++;
+            if (this.month > 11) {
+                this.month = -1;
+                this.month++;
+                this.year++;
+            }
+            this.getTaskListPreview()
+        },
+        getTaskListPreview() {
+            jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-list-preview/`, {
+                month: this.month,
+                year: this.year
+            }).then(response => {
+                this.tasks = response.data
+            })
+            .catch(err => { 
+                console.warn(err)
+            })
+        }
+    },
+    mounted() {
+        this.getTaskListPreview()
+    },
+    computed: {
         calendar() {
             let days = [];
             let week = 0;
@@ -100,8 +226,15 @@ export default {
             let dlast = new Date(this.year, this.month + 1, 0).getDate();
             let a = {}
             for (let i = 1; i <= dlast; i++) {
+                let cur_tasks = []
+                for(let j = 0; j < this.tasks.length; j++)
+                    if(this.tasks[j].date.day == i && this.tasks[j].date.month == this.month)
+                    {
+                        cur_tasks.push(this.tasks[j])
+                        continue
+                    }
                 if (new Date(this.year, this.month, i).getDay() != this.dFirstMonth) {
-                        a = {index:i};
+                        a = {index:i, tasks:cur_tasks};
                         days[week].push(a);
                         if (i == new Date().getDate() && this.year == new Date().getFullYear() && this.month == new Date().getMonth()) { a.current = 'var(--general-color)'};
                         if (new Date(this.year, this.month, i).getDay() == 6 || new Date(this.year, this.month, i).getDay() == 0) { a.weekend = 'var(--error-color)'};
@@ -122,27 +255,15 @@ export default {
             }
             return days;
         },
-        decrease() {
-            this.month--;
-            if (this.month < 0) {
-                this.month = 12;
-                this.month--;
-                this.year--;
-            }
-        },
-        increase() {
-            this.month++;
-            if (this.month > 11) {
-                this.month = -1;
-                this.month++;
-                this.year++;
-            }
-        },
     }
 }
 </script>
 
 <style scoped>
+.task-title-container-done {
+    text-decoration: line-through;
+}
+
 .day-index {
     height: 50%;
     width: 100%;
@@ -162,7 +283,6 @@ export default {
 
 .tasks-preview-list {
     height: 50%;
-    width: 100%;
     display: flex;
 }
 
@@ -268,6 +388,8 @@ input {
 .task-tile-body {
     width: 100%;
     height: 75%;
+    display: flex;
+    flex-direction: column;
     overflow: auto;
 }
 
@@ -289,6 +411,8 @@ input {
     border: 3px solid var(--general-color);
     background-color: white;
     padding: 35px;
+    display: flex;
+    flex-direction: column;
 }
 
 .tasks-tile-header {
@@ -304,6 +428,7 @@ input {
 
 .day {
     cursor: pointer;
+    width: 100px;
 }
 
 .weekend-day {

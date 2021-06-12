@@ -18,8 +18,8 @@ class Date(models.Model):
 
 class Task(models.Model):
     title = models.CharField(max_length=150)
-    time_from = models.CharField(max_length=6)
-    time_to = models.CharField(max_length=6)
+    time_from = models.CharField(max_length=100, blank=True)
+    time_to = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=150, choices=STATUS, default='process')
     date = models.ForeignKey(Date, on_delete=models.CASCADE)
