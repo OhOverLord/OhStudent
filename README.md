@@ -7,4 +7,4 @@ I'm going to develope site for students
 https://www.figma.com/file/BmioboYWNXCNmaWGGku6KC/OhSocial?node-id=0%3A1
 
 ## Progress
-|############------|
+|#################-|
