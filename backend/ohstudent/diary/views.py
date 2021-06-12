@@ -67,8 +67,6 @@ class TaskUpdadeAPIView(APIView):
 
     def post(self, request):
         pk = request.data.pop('id', None)
-        print(request.data)
-        print(pk)
         if pk is not None:
             task = get_object_or_404(Task, pk=pk, date__user__pk=request.user.pk)
             serializer = self.serializer_class(
