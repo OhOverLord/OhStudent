@@ -41,10 +41,34 @@ export default {
       localStorage.clear()
       this.status = '';
       this.$router.push('/login')
+    },
+    checkPony() {
+    let ponies = ['pinkypie', 'applejack', 'rainbowdash', 'twilightsparkle']
+    console.log(this.username.toLowerCase().replace(/\s/g, ''))
+    for(let pony of ponies)
+      if(this.username.toLowerCase().replace(/\s/g, '') == pony)
+      {
+        this.changeTheme()
+        return
+      }
+    },
+    changeTheme() {
+      document.documentElement.style.setProperty('--general-color', '#DDBBD9');
+      document.documentElement.style.setProperty('--light-general-color', '#F8F2F8');
+      document.documentElement.style.setProperty('--other-color', '#E5E5EA');
+      document.documentElement.style.setProperty('--background-color', '#F0F0F0');
+      document.documentElement.style.setProperty('--button-delete-color', '#FEAEAE');
+      document.documentElement.style.setProperty('--button-delete-color-hover', '#FE8686');
+      document.documentElement.style.setProperty('--add-button-color', '#FE8686');
+      document.documentElement.style.setProperty('--add-button-color-hover', '#DDBBD9');
+      document.documentElement.style.setProperty('--button-color', '#BEBEDA');
+      document.documentElement.style.setProperty('--button-color-hover', '#A4A4CB');
+      document.documentElement.style.setProperty('--error-color', '#F68F71');
     }
   },
   mounted() {
     this.first_name = localStorage.getItem('first_name')
+    this.checkPony()
   }
 }
 </script>
