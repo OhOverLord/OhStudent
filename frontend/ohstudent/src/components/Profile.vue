@@ -35,6 +35,7 @@
 
 <script>
 import jwtInterceptor from '@/jwtInterceptor'
+import { HOST_URL } from "@/settings";
 
 export default {
     data() {
@@ -90,7 +91,7 @@ export default {
         },
     },
     mounted() {
-        jwtInterceptor.get('http://127.0.0.1:8000/account/user/').then(response => {
+        jwtInterceptor.get(`${HOST_URL}/account/user/`).then(response => {
             this.username = response.data.user.username,
             this.email = response.data.user.email,
             this.first_name = response.data.user.first_name,
@@ -113,7 +114,7 @@ export default {
             }
             if(this.password2 != '')
                 user['password'] = this.password;
-            jwtInterceptor.patch('http://127.0.0.1:8000/account/user/', {
+            jwtInterceptor.patch(`${HOST_URL}/account/user/`, {
                 user: user
             }).then(() => {
                 this.disabled = true

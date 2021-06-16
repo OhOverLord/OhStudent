@@ -23,6 +23,7 @@
 
 <script>
 import axios from 'axios'
+import { HOST_URL } from "@/settings";
 
 export default {
     data() {
@@ -43,7 +44,7 @@ export default {
             if(this.fio.split(' ').length > 2)
                 this.errors.push(["Неправильно заполнены имя и фамилия"])
             if(this.errors.length == 0){
-                const response = await axios.post('http://127.0.0.1:8000/account/register/', {
+                const response = await axios.post(`${HOST_URL}/account/register/`, {
                     user: {
                         email: this.email,
                         username: this.username,

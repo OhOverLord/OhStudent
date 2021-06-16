@@ -49,6 +49,7 @@
 
 <script>
 import jwtInterceptor from '@/jwtInterceptor'
+import { HOST_URL } from "@/settings";
 
 export default {
     data() {
@@ -61,7 +62,7 @@ export default {
     },
     methods: {
         getAllContacts() {
-            jwtInterceptor.get('http://127.0.0.1:8000/chat/contact-list/').then(response => {
+            jwtInterceptor.get(`${HOST_URL}/chat/contact-list/`).then(response => {
                 this.accounts = response.data
             })
             .catch(err => { 
@@ -69,7 +70,7 @@ export default {
             })
         },
         getAllFriends() {
-            jwtInterceptor.get('http://127.0.0.1:8000/chat/friends-list/').then(response => {
+            jwtInterceptor.get(`${HOST_URL}/chat/friends-list/`).then(response => {
                 for(let pairs of response.data)
                     if(pairs.contact.user.username != localStorage.getItem('username'))
                         this.friends.push(pairs.contact)
@@ -81,7 +82,7 @@ export default {
             })
         },
         getFriendRequests() {
-            jwtInterceptor.get('http://127.0.0.1:8000/chat/friend-requests-list/').then(response => {
+            jwtInterceptor.get(`${HOST_URL}/chat/friend-requests-list/`).then(response => {
                 this.friendRequests = response.data
             })
             .catch(err => { 
@@ -89,7 +90,7 @@ export default {
             })
         },
         addFriend(personId, index) {
-            jwtInterceptor.post('http://127.0.0.1:8000/chat/add-friend/', {
+            jwtInterceptor.post(`${HOST_URL}/chat/add-friend/`, {
                 person_id: personId
             }).then(response => {
                 this.accounts.find((o, i) => {
@@ -104,7 +105,7 @@ export default {
             })
         },
         deleteFriend(i, personId) {
-            jwtInterceptor.post('http://127.0.0.1:8000/chat/delete-friend/', {
+            jwtInterceptor.post(`${HOST_URL}/chat/delete-friend/`, {
                 person_id: personId
             }).then(response => {
                 this.friends.splice(i, 1)
@@ -117,7 +118,7 @@ export default {
         startChat(username) {
             let interclutor = username
             let currentUser = localStorage.getItem('username')
-            jwtInterceptor.post('http://127.0.0.1:8000/chat/create/', {
+            jwtInterceptor.post(`${HOST_URL}/chat/create/`, {
                     messages: [],
                     participants: [interclutor, currentUser]
             }).then(response => {
@@ -130,7 +131,7 @@ export default {
             })
         },
         applyFriend(i, personId) {
-            jwtInterceptor.post('http://127.0.0.1:8000/chat/apply-friend/', {
+            jwtInterceptor.post(`${HOST_URL}/chat/apply-friend/`, {
                 person_id: personId
             }).then(response => {
                 this.friendRequests.splice(i, 1)

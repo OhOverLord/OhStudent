@@ -105,6 +105,7 @@
 <script>
 import modal from '@/components/Modal'
 import jwtInterceptor from '@/jwtInterceptor'
+import { HOST_URL } from "@/settings";
 
 export default {
     data() {
@@ -160,7 +161,7 @@ export default {
         addWallet() {
             if(this.description != '')
             {
-                jwtInterceptor.post('http://127.0.0.1:8000/finance/wallet-create/', {
+                jwtInterceptor.post(`${HOST_URL}/finance/wallet-create/`, {
                     money: this.money,
                     description: this.description,
                     currency: this.currency
@@ -187,7 +188,7 @@ export default {
             this.current_wallet = i
         },
         getWallets() {
-            jwtInterceptor.get('http://127.0.0.1:8000/finance/wallet-list/').then(response => {
+            jwtInterceptor.get(`${HOST_URL}/finance/wallet-list/`).then(response => {
                 this.wallets = response.data
             })
             .catch(err => { 
@@ -195,7 +196,7 @@ export default {
             })
         },
         editWallet() {
-            jwtInterceptor.post('http://127.0.0.1:8000/finance/wallet-update/', {
+            jwtInterceptor.post(`${HOST_URL}/finance/wallet-update/`, {
                 id: this.wallets[this.current_wallet].id,
                 money: this.money,
                 description: this.description,
@@ -211,7 +212,7 @@ export default {
             })
         },
         deleteWallet() {
-            jwtInterceptor.post('http://127.0.0.1:8000/finance/wallet-delete/', {
+            jwtInterceptor.post(`${HOST_URL}/finance/wallet-delete/`, {
                 id: this.wallets[this.current_wallet].id,
             }).then(response => {
                 this.getWallets()
@@ -230,7 +231,7 @@ export default {
             this.currency = ''
         },
         getWalletsSum() {
-            jwtInterceptor.get('http://127.0.0.1:8000/finance/wallets-result/').then(response => {
+            jwtInterceptor.get(`${HOST_URL}/finance/wallets-result/`).then(response => {
                 this.wallets_sum = response.data
             })
             .catch(err => { 
@@ -247,7 +248,7 @@ export default {
             this.currency = wallet.currency
         },
         getCategories(wallet) {
-            jwtInterceptor.post('http://127.0.0.1:8000/finance/category-list/', {
+            jwtInterceptor.post(`${HOST_URL}/finance/category-list/`, {
                 wallet: wallet
             }).then(response => {
                 this.categories = response.data
@@ -262,7 +263,7 @@ export default {
             this.getSpendings(id)
         },
         addCategory() {
-            jwtInterceptor.post('http://127.0.0.1:8000/finance/category-create/', {
+            jwtInterceptor.post(`${HOST_URL}/finance/category-create/`, {
                 title: this.categoryTitle,
                 wallet: this.choosenWallet
             }).then(response => {
@@ -275,7 +276,7 @@ export default {
             })
         },
         getSpendings(category) {
-            jwtInterceptor.post('http://127.0.0.1:8000/finance/consumption-list/', {
+            jwtInterceptor.post(`${HOST_URL}/finance/consumption-list/`, {
                 category: category
             }).then(response => {
                 this.spendings = response.data
@@ -285,7 +286,7 @@ export default {
             })
         },
         addSpending() {
-            jwtInterceptor.post('http://127.0.0.1:8000/finance/consumption-create/', {
+            jwtInterceptor.post(`${HOST_URL}/finance/consumption-create/`, {
                 title: this.spendingTitle,
                 money: this.spendingMoney,
                 category: this.currentCategory

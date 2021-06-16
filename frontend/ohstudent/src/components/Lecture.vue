@@ -15,6 +15,7 @@
 
 <script>
 import jwtInterceptor from '@/jwtInterceptor'
+import { HOST_URL } from "@/settings";
 
 export default {
     data() {
@@ -30,7 +31,7 @@ export default {
         }
     },
     mounted() {
-        jwtInterceptor.post('http://127.0.0.1:8000/lectures/public-lecture-detail/', {
+        jwtInterceptor.post(`${HOST_URL}/lectures/public-lecture-detail/`, {
             id: this.$route.params.id
         }).then(response => {
             this.lecture = response.data

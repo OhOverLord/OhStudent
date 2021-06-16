@@ -43,6 +43,7 @@
 
 <script>
 import jwtInterceptor from '@/jwtInterceptor'
+import { SOCKET_URL, HOST_URL } from "@/settings";
 
 export default {
   props: ['id'],
@@ -81,7 +82,7 @@ export default {
         else {alert('Напишите сообщение... :)')}
     },
     connect(chatUrl, func_name) {
-        jwtInterceptor.get(`http://127.0.0.1:8000/chat/${chatUrl}/`).then(response => {
+        jwtInterceptor.get(`${HOST_URL}/chat/${chatUrl}/`).then(response => {
             let participants = response.data.participants
             if (participants[0].user.first_name != this.first_name && participants[0].user.last_name != this.last_name)
             {
@@ -99,7 +100,7 @@ export default {
             this.visible = true
             console.warn(err.response)
         })
-        const path = `ws://127.0.0.1:8000/ws/chat/${chatUrl}/`;
+        const path = `${SOCKET_URL}/ws/chat/${chatUrl}/`;
         this.socketRef = new WebSocket(path);
         this.socketRef.onopen = () => {
             console.log("WebSocket open");
@@ -175,7 +176,7 @@ export default {
     this.scrollToEnd();
   },
   mounted() {
-    jwtInterceptor.get('http://127.0.0.1:8000/chat/').then(response => {
+    jwtInterceptor.get(`${HOST_URL}/chat/`).then(response => {
         this.chats = response.data
         this.update_user_incr(localStorage.getItem('username'))
     })

@@ -19,6 +19,7 @@
 <script>
 import { jwtDecrypt } from '@/jwtDecode'
 import axios from 'axios'
+import { HOST_URL } from "@/settings"
 
 export default {
     data() {
@@ -30,7 +31,7 @@ export default {
     },
     methods: {
         async login() {
-            const response = await axios.post('http://127.0.0.1:8000/account/login/', {
+            const response = await axios.post(`${HOST_URL}/account/login/`, {
                 user: {
                     email: this.email,
                     password: this.password

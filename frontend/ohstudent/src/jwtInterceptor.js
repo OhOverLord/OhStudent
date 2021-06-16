@@ -1,4 +1,5 @@
 import axios from "axios";
+import { HOST_URL } from "@/settings";
 
 const jwtInterceptor = axios.create({});
  
@@ -25,7 +26,7 @@ jwtInterceptor.interceptors.request.use((config) => {
         };
   
         var response = await axios.post(
-          "http://localhost:8000/account/refresh_token/",
+          `${HOST_URL}/account/refresh_token/`,
           payload
         );
         console.log(response.data)

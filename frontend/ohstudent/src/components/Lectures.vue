@@ -134,6 +134,7 @@ import jwtInterceptor from '@/jwtInterceptor'
 import ClipLoader from 'vue-spinner/src/ClipLoader.vue'
 import modal from '@/components/Modal'
 import _ from 'lodash';
+import { HOST_URL } from "@/settings";
 
 export default {
     data() {
@@ -178,7 +179,7 @@ export default {
             console.log(this.lecture)
         },
         get_folders() {
-            jwtInterceptor.get('http://127.0.0.1:8000/lectures/folder-list/').then(response => {
+            jwtInterceptor.get(`${HOST_URL}/lectures/folder-list/`).then(response => {
                 this.folders_list = response.data
             })
             .catch(err => { 
@@ -197,7 +198,7 @@ export default {
             {
                 if(this.lectureTitle != '' && this.editorData != '')
                 {
-                    jwtInterceptor.post('http://127.0.0.1:8000/lectures/create/', {
+                    jwtInterceptor.post(`${HOST_URL}/lectures/create/`, {
                         title: this.lectureTitle,
                         description: this.editorData,
                         folder: this.folder.id
@@ -218,7 +219,7 @@ export default {
             this.loading = false
         },
         update() {
-            jwtInterceptor.post(`http://127.0.0.1:8000/lectures/update/`, {
+            jwtInterceptor.post(`${HOST_URL}/lectures/update/`, {
                 title: this.lectureTitle,
                 description: this.editorData,
                 id: this.lecture.id
@@ -233,7 +234,7 @@ export default {
         _delete() {
             if(this.choose) {
                 console.log(this.index)
-                jwtInterceptor.post(`http://127.0.0.1:8000/lectures/delete/`, {
+                jwtInterceptor.post(`${HOST_URL}/lectures/delete/`, {
                     id: this.lecture.id
                 }).then(response => {
                     console.log(response)
@@ -247,7 +248,7 @@ export default {
             this.showDeleteModal = false
         },
         share() {
-            jwtInterceptor.post('http://127.0.0.1:8000/lectures/share/', {
+            jwtInterceptor.post(`${HOST_URL}/lectures/share/`, {
                 id: this.lecture.id
             }).then(() => {
                 alert("Ссылка скопирована")
@@ -259,7 +260,7 @@ export default {
         },
         showShare() {
             this.showShareModal = true
-            this.link = `http://localhost:8080${this.lecture.absolute_url}`
+            this.link = `${HOST_URL}${this.lecture.absolute_url}`
         },
         showFolders() {
             this.folders = true
@@ -286,7 +287,7 @@ export default {
             this.folders = false
         },
         editFolder() {
-            jwtInterceptor.post('http://127.0.0.1:8000/lectures/folder-update/', {
+            jwtInterceptor.post(`${HOST_URL}/lectures/folder-update/`, {
                 id: this.folder.id,
                 title: this.folder_title
             }).then(response => {
@@ -306,7 +307,7 @@ export default {
             })
         },
         deleteFolder() {
-            jwtInterceptor.post('http://127.0.0.1:8000/lectures/folder-delete/', {
+            jwtInterceptor.post(`${HOST_URL}/lectures/folder-delete/`, {
                 id: this.folder.id,
             }).then(response => {
                 let index;
@@ -328,7 +329,7 @@ export default {
             this.showAddFolderModal = true
         },
         addFolder() {
-            jwtInterceptor.post('http://127.0.0.1:8000/lectures/folder-create/', {
+            jwtInterceptor.post(`${HOST_URL}/lectures/folder-create/`, {
                 title: this.folder_title
             }).then(response => {
                 this.folders_list.push(response.data)
@@ -340,7 +341,7 @@ export default {
             })
         },
         getLectures(folder = null) {
-            jwtInterceptor.post('http://127.0.0.1:8000/lectures/lectures-list/', {
+            jwtInterceptor.post(`${HOST_URL}/lectures/lectures-list/`, {
                 folder:folder
             }).then(response => {
                 this.lectures = response.data

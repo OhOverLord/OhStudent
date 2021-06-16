@@ -69,6 +69,7 @@
 
 <script>
 import jwtInterceptor from '@/jwtInterceptor'
+import { HOST_URL } from "@/settings";
 
 export default {
     data() {
@@ -103,7 +104,7 @@ export default {
         },
         openAddTaskWindow() {
             if(this.taskEditShow) {
-                jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-update/`, {
+                jwtInterceptor.post(`${HOST_URL}/diary/task-update/`, {
                     id: this.day_index.tasks[this.index].id,
                     title: this.taskTitle,
                     time_from: this.taskTimeFrom,
@@ -121,7 +122,7 @@ export default {
                 })
             }
             else if(this.showAddTask && this.taskTitle != '') {
-                jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-create/`, {
+                jwtInterceptor.post(`${HOST_URL}/diary/task-create/`, {
                     day: this.day_index.index,
                     month: this.month,
                     year: this.year,
@@ -149,7 +150,7 @@ export default {
                 var status = 'completed'
             else
                 var status = 'process'
-            jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-update/`, {
+            jwtInterceptor.post(`${HOST_URL}/diary/task-update/`, {
                 id: this.day_index.tasks[index].id,
                 status: status
             }).then(response => {
@@ -204,7 +205,7 @@ export default {
             this.getTaskListPreview()
         },
         getTaskListPreview() {
-            jwtInterceptor.post(`http://127.0.0.1:8000/diary/task-list-preview/`, {
+            jwtInterceptor.post(`${HOST_URL}/diary/task-list-preview/`, {
                 month: this.month,
                 year: this.year
             }).then(response => {
