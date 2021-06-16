@@ -6,10 +6,12 @@
       <div v-else class="dropdown">
         <span class="dropbtn">{{username}}</span>
         <div class="dropdown-content">
-          <router-link to="/profile">Profile</router-link>
-          <router-link to="/friends">friends</router-link>
-          <router-link to="/chat">Chat</router-link>
-          <a @click="logout">Logout</a>
+          <router-link to="/profile">Профиль</router-link>
+          <router-link to="/friends">Друзья</router-link>
+          <router-link to="/chat">Чат</router-link>
+          <a :href="finance_link">Финансы</a>
+          <a :href="diary_link">Ежедневник</a>
+          <a @click="logout">Выйти</a>
         </div>
       </div>
     </header>
@@ -18,6 +20,7 @@
 </template>
 
 <script>
+import { HOST_URL } from "@/settings";
 
 export default {
   name: 'App',
@@ -25,6 +28,8 @@ export default {
     return {
       status: localStorage.getItem('status'),
       username: localStorage.getItem('username'),
+      finance_link: `http://localhost:8080/finance`,
+      diary_link: `http://localhost:8080/diary`
     }
   },
   components: {

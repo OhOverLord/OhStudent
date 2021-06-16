@@ -22,7 +22,7 @@
                     <td class="day" v-for="(day, index) in week" :class="{'weekend-day': day.weekend, 'current-day': day.current}" :key="index" @click="openTaskWindow(day, $event)"> 
                         <div class="day-index">{{day.index}}</div>
                         <div class="tasks-preview-list" v-if="day.tasks">
-                            <div v-for="(task, index) in day.tasks.slice(0, 3)" :key="index">
+                            <div v-for="(task, index) in day.tasks" :key="index">
                                 <div v-if="task.status == 'process'" class="task-preview" :class="{'current-day-task': day.current}"></div>
                             </div>
                         </div>
@@ -284,7 +284,9 @@ export default {
 
 .tasks-preview-list {
     height: 50%;
+    width: 41px;
     display: flex;
+    overflow: hidden;
 }
 
 .choosen {

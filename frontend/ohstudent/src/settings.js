@@ -1,4 +1,4 @@
-let DEBUG = false;
+let DEBUG = true;
 
 let HOST_URL = "https://testdrfheroku.herokuapp.com";
 let SOCKET_URL = "wss://testdrfheroku.herokuapp.com";

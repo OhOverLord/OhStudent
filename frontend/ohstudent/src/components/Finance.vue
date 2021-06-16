@@ -295,6 +295,7 @@ export default {
                 this.spendingTitle = ''
                 this.spendingMoney = ''
                 this.getWallets()
+                this.getWalletsSum()
                 this.max_sum = response.data.balance
             })
             .catch(err => { 
